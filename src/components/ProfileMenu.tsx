@@ -72,7 +72,7 @@ export function ProfileMenu() {
       setEarlyBeliever(Boolean(data.isEarlyBeliever || data.isPaid));
       const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
       const fromProvider = meta["avatar_url"] ?? meta["picture"];
-      const mastodon = meta["provider_kind"] === "mastodon" ? mastodonAvatarSrc(typeof meta["handle"] === "string" ? meta["handle"] : null) : null;
+      const mastodon = meta["provider_kind"] === "mastodon" ? mastodonAvatarSrc(typeof meta["fediverse_handle"] === "string" ? meta["fediverse_handle"] : null) : null;
       setAvatarUrl(profileImageSrc(data.avatarUrl) ?? mastodon ?? profileImageSrc(typeof fromProvider === "string" ? fromProvider : null));
     })();
     return () => {
