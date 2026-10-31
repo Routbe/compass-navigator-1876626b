@@ -295,6 +295,8 @@ export async function buildMastodonAuthorizeUrl(input: {
 type Account = { id: string; username: string; displayName: string; avatar: string | null; url: string };
 
 async function verifyCredentials(instance: string, token: string): Promise<Account> {
+  const { mastodonHandleUrl } = await import("./integrations/mastodon.server");
+  mastodonHandleUrl(`@user@${instance}`);
   const res = await timedFetch(`https://${instance}/api/v1/accounts/verify_credentials`, {
     headers: { authorization: `Bearer ${token}`, accept: "application/json" },
   });

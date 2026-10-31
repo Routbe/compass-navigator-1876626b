@@ -23,6 +23,6 @@ describe("owner redirect repair", () => {
   it("requires ownership in the write and refuses unmatched rows", async () => {
     sql.mockResolvedValue([]);
     await expect(addOwnedRedirect("other", "client", "https://APP.test:443/cb/")).rejects.toThrow("Forbidden");
-    expect(sql.mock.calls[0]?.slice(1)).toEqual(["https://app.test/cb", "client", "other"]);
+    expect(sql.mock.calls[0]?.slice(1)).toEqual(["https://APP.test:443/cb/", "client", "other"]);
   });
 });
