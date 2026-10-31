@@ -12,6 +12,7 @@ const db = {
   logFailure: false,
 };
 vi.mock("@/lib/neon", () => ({
+  withDbContext: (_context: unknown, fn: () => unknown) => fn(),
   sql: (strings: TemplateStringsArray, ...vals: unknown[]) => {
     const q = strings.join("?");
     if (q.includes("from public.users u left join public.profiles"))

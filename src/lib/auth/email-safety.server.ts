@@ -41,7 +41,7 @@ export async function freezeEmailChange(token: string) {
   const { runBatch, sql, withDbContext } = await import("@/lib/neon");
   const hash = await hashToken(token);
   // Read token owner before entering owner-scoped RLS; never trust a request-supplied user ID.
-  const owner = (await sql`select user_id from public.account_email_changes where freeze_token_hash=${hash} and recovery_until>now() limit 1`)[0];
+  const owner = (await sql`select public.email_freeze_owner(${hash}) as user_id`)[0];
   if (typeof owner?.["user_id"] !== "string") throw new Error("freeze_token_invalid");
   await withDbContext({ userId: owner["user_id"], workspaceId: null }, () => runBatch([
     { query: "select id from public.account_email_changes where freeze_token_hash=$1 for update", params: [hash] },

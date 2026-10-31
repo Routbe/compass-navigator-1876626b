@@ -18,6 +18,7 @@ export function EncryptedLedgerPanel() {
   const [recovery, setRecovery] = useState(""), [acknowledged, setAcknowledged] = useState(false), [usePrf, setUsePrf] = useState(false);
   const [rows, setRows] = useState<LogRow[]>([]), [decoded, setDecoded] = useState<Record<string, string>>({});
   const [clientKey, setClientKey] = useState<{ id: string; key: CryptoKey } | null>(null);
+  const [selectedKeyId, setSelectedKeyId] = useState("");
   const [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null);
   const [integrity, setIntegrity] = useState<Awaited<ReturnType<typeof getDisclosureAudit>> | null>(null);
   const active = keys.find((k) => !k.retired_at);
@@ -49,7 +50,7 @@ export function EncryptedLedgerPanel() {
     setClientKey({ id: pending.keyId, key: pending.privateKey }); setPending(null); setRecovery(""); setDecoded({}); await refresh();
   }
   async function unlock(prf: boolean) {
-    const envelopeKey = keys.find((k) => prf ? k.key_id === active?.key_id : k.encrypted_ledger_private_key.some((e) => e.source === "recovery"));
+    const envelopeKey = keys.find((k) => prf ? k.key_id === active?.key_id : k.key_id === (selectedKeyId || active?.key_id));
     if (!envelopeKey) throw new Error("Geen sleutel beschikbaar.");
     const envelopes = envelopeKey.encrypted_ledger_private_key;
     const envelope = envelopes.find((e) => e.source === (prf ? "prf" : "recovery"));
@@ -91,6 +92,9 @@ export function EncryptedLedgerPanel() {
       <div className="flex gap-2"><Button disabled={busy || !acknowledged} onClick={() => void run(activate)}>Sleutel activeren</Button><Button variant="ghost" onClick={() => setPending(null)}>Annuleren</Button></div>
     </div>}
     {keys.length > 0 && <div className="flex flex-wrap gap-2">
+      <select aria-label="Logboeksleutel" value={selectedKeyId || active?.key_id || ""} onChange={(e) => setSelectedKeyId(e.target.value)} className="rounded-md border border-border bg-background px-3 text-sm">
+        {keys.map((k, index) => <option key={k.key_id} value={k.key_id}>{k.retired_at ? `Historische sleutel ${index + 1}` : "Actieve sleutel"}</option>)}
+      </select>
       <Input aria-label="Logboekherstelcode" type="password" autoComplete="off" value={recovery} onChange={(e) => setRecovery(e.target.value)} placeholder="ROUT-RCVR-…" className="max-w-md" />
       <Button disabled={busy || !recovery} onClick={() => void run(() => unlock(false))}>Lokaal ontsleutelen</Button>
       {active?.encrypted_ledger_private_key.some((e) => e.source === "prf") && <Button variant="outline" disabled={busy} onClick={() => void run(() => unlock(true))}><Fingerprint aria-hidden="true" className="size-4" />Passkey</Button>}
