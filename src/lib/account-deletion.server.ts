@@ -31,12 +31,13 @@ async function auditStatement(userId: string, event: "requested" | "cancelled" |
   const hex = Array.from(hash, (b) => b.toString(16).padStart(2, "0")).join("");
   const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(`${hex}|${event}|${ts}`)));
   const sigHex = Array.from(sig, (b) => b.toString(16).padStart(2, "0")).join("");
-  return sql`insert into public.account_deletion_audit (user_id_hash, event, signature, created_at)
-    values (decode(${hex}, 'hex'), ${event}, decode(${sigHex}, 'hex'), ${ts})`;
+  return { query: `insert into public.account_deletion_audit (user_id_hash, event, signature, created_at)
+    values (decode($1, 'hex'), $2, decode($3, 'hex'), $4)`, params: [hex, event, sigHex, ts] };
 }
 
 async function writeAudit(userId: string, event: "requested" | "cancelled" | "purged") {
-  await auditStatement(userId, event);
+  const statement = await auditStatement(userId, event);
+  await sql.query(statement.query, statement.params);
 }
 
 export async function getDeletion(userId: string) {
@@ -47,6 +48,7 @@ export async function getDeletion(userId: string) {
 export async function requestDeletion(userId: string) {
   const now = Date.now();
   const after = new Date(purgeAfter(now)).toISOString();
+  const audit = await auditStatement(userId, "requested");
   await sql.transaction([
     sql`select id from public.users where id = ${userId} for update`,
     sql`select 1 / case when exists (select 1 from public.users where id = ${userId} and account_status = 'active') then 1 else 0 end as active`,
@@ -56,7 +58,7 @@ export async function requestDeletion(userId: string) {
         cancelled_at = null, completed_at = null
       where public.account_deletions.completed_at is null`,
     sql`update public.users set account_status = 'pending_deletion' where id = ${userId} and account_status = 'active'`,
-    await auditStatement(userId, "requested"),
+    sql.query(audit.query, audit.params),
   ]);
   return getDeletion(userId);
 }
@@ -86,9 +88,10 @@ export async function purgeDueDeletions(limit = 25) {
     const users = (await sql`select user_metadata->>'neon_auth_id' as auth_id from public.users where id = ${userId}`) as Row[];
     const authId = (users[0]?.["auth_id"] as string | null) ?? userId;
     try {
+      const audit = await auditStatement(userId, "purged");
       await sql.transaction([
         ...accountPurgeStatements(userId, authId).map((s) => sql.query(s.query, s.params)),
-        await auditStatement(userId, "purged"),
+        sql.query(audit.query, audit.params),
       ]);
       purged++;
     } catch {
