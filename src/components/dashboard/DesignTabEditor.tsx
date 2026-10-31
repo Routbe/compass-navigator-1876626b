@@ -499,18 +499,20 @@ export function DesignButtonsTypographySection({
   setPref,
   theme,
   inlineControls = false,
+  section = "both",
 }: {
   prefs: ProfileDisplayPrefs;
   setPref: SetPref;
   theme: string;
   inlineControls?: boolean;
+  section?: "buttons" | "typography" | "both";
 }) {
   const t = themeOf(theme);
   const preview = (patch: Partial<ProfileDisplayPrefs>) =>
     designButtonStyle({ ...prefs, ...patch, buttonsCustom: true, buttonSize: "sm" }, t) ?? {};
   return (
     <div className="space-y-5">
-      <section className="space-y-3">
+      {section !== "typography" && <section className="space-y-3">
         {!inlineControls && <div className="flex min-w-0 items-center gap-2">
           <p className="input-label">Knopvorm</p>
           <CustomizeButton open={prefs.buttonsCustom} onToggle={() => setPref("buttonsCustom", !prefs.buttonsCustom)} label="Knoppen aanpassen" controls="buttons-advanced" />
@@ -564,9 +566,9 @@ export function DesignButtonsTypographySection({
             <div className="space-y-2"><p className="input-label">Beweging</p><Select value={prefs.buttonEffect} onValueChange={(v) => setPref("buttonEffect", v as ProfileDisplayPrefs["buttonEffect"])}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{BUTTON_EFFECTS.map((o) => <SelectItem key={o.id} value={o.id}>{o.label} — {o.hint}</SelectItem>)}</SelectContent></Select></div>
           </div>
         </CustomCollapse>
-      </section>
+      </section>}
 
-      <section className="space-y-3 border-t border-border pt-4">
+      {section !== "buttons" && <section className={cn("space-y-3", section === "both" && "border-t border-border pt-4")}>
         {!inlineControls && <div className="flex min-w-0 items-center gap-2">
           <p className="input-label">Typografie</p>
           <CustomizeButton open={prefs.typographyCustom} onToggle={() => setPref("typographyCustom", !prefs.typographyCustom)} label="Typografie aanpassen" controls="type-advanced" />
@@ -586,7 +588,7 @@ export function DesignButtonsTypographySection({
           <div className="space-y-1.5"><p className="input-label">Tekstgloed ({prefs.titleGlow}px)</p><Slider value={[prefs.titleGlow]} min={0} max={40} step={2} onValueChange={([v]) => setPref("titleGlow", v ?? 0)} /></div>
           <ColorField label="Titelkleur" value={prefs.titleColor} onChange={(v) => setPref("titleColor", v)} placeholder={t.text} />
         </CustomCollapse>
-      </section>
+      </section>}
     </div>
   );
 }

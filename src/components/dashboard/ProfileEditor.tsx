@@ -1052,7 +1052,7 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
           {tab === "links" && (
             // Leaving a link title or URL field saves straight away.
             <div onBlurCapture={() => flushRef.current()}>
-            <Accordion type="single" collapsible defaultValue="components_list" className="space-y-3">
+            <Accordion type="single" collapsible className="space-y-3">
               <ProfileBasicInfoAccordion
                 variant={variant}
                 displayName={displayName}
@@ -1075,6 +1075,8 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
               <LiveStatusAccordion prefs={prefs} setPref={setPref} />
 
               <ProfileContentAccordion
+                cardEffects={prefs.cardEffects}
+                onCardEffectsChange={(value) => setPref("cardEffects", value)}
                 blocks={blocks}
                 onBlocksChange={setBlocks}
                 openBlock={openBlock}
@@ -1239,19 +1241,6 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
                 blocks={blocks}
               />
             </Accordion>
-          )}
-          {tab === "design" && (
-            <section className="mt-3 space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-5">
-              {([["cardEffects","studio.effects.title","studio.effects.help"],["steamPresence","studio.effects.steam","studio.effects.steamHelp"],["lastfmPresence","studio.effects.lastfm","studio.effects.lastfmHelp"]] as const).map(([k,title,help]) => (
-                <div key={k} className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">{t(title)}</p>
-                    <p className="text-sm text-muted-foreground">{t(help)}</p>
-                  </div>
-                  <Switch aria-label={t(title)} checked={prefs[k]} onCheckedChange={(v) => setPref(k, v)} />
-                </div>
-              ))}
-            </section>
           )}
 
           {tab === "analytics" && <VisitorPanel defaultSpace={alias ? "alias" : "all"} />}

@@ -195,6 +195,9 @@ export function ProfileThemePicker({
               </button>
             ))}
           </div>
+          <div className="w-full">
+            <DesignButtonsTypographySection prefs={prefs} setPref={setPref} theme={theme} inlineControls section="buttons" />
+          </div>
           <div className="flex min-w-0 items-center gap-2 pt-2">
             <p className="input-label flex items-center gap-1.5">Typografie <ProPill /></p>
             <CustomizeButton open={prefs.typographyCustom} onToggle={() => setPref("typographyCustom", !prefs.typographyCustom)} label="Typografie aanpassen" controls="type-advanced" />
@@ -214,6 +217,9 @@ export function ProfileThemePicker({
               </button>
             ))}
           </div>
+          <div className="w-full">
+            <DesignButtonsTypographySection prefs={prefs} setPref={setPref} theme={theme} inlineControls section="typography" />
+          </div>
           <div className="flex items-start justify-between gap-4 border-t border-border pt-4">
             <div className="min-w-0">
               <p className="text-sm font-medium">&ldquo;Made with ROUT&rdquo;-voetnoot</p>
@@ -231,7 +237,6 @@ export function ProfileThemePicker({
             />
           </div>
           <div className="border-t border-border pt-4">
-            <DesignButtonsTypographySection prefs={prefs} setPref={setPref} theme={theme} inlineControls />
             <ScopedThemeBar prefs={prefs} setPref={setPref} />
           </div>
         </AccordionContent>
