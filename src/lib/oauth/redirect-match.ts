@@ -35,7 +35,7 @@ function normalizePath(path: string): string {
 
 /** Opgeschoonde vorm van een binnenkomende URI (onzichtbare tekens weg, volledig-geëncodeerd gedecodeerd). */
 export function cleanRedirectUri(raw: string): string {
-  return decodeIfFullyEncoded(raw.replace(INVISIBLE, ""));
+  return raw;
 }
 
 export function normalizeRedirectUri(raw: string | null | undefined): string | null {
@@ -47,16 +47,16 @@ export function normalizeRedirectUri(raw: string | null | undefined): string | n
   } catch {
     return null;
   }
-  if (cleaned.includes("#") || u.username || u.password) return null;
+  if (/[\u0000-\u0020\u007f\u00a0\u200b-\u200d\u2060\ufeff\\]/.test(cleaned) || cleaned.includes("*") || cleaned.includes("#") || u.username || u.password || /%2f|%5c/i.test(u.pathname) || /(?:^|\/)\.{1,2}(?:\/|$)/.test(cleaned.replace(/^https?:\/\/[^/]+/, ""))) return null;
   if (u.protocol !== "https:" && !(u.protocol === "http:" && ["localhost", "127.0.0.1"].includes(u.hostname))) return null;
   const port = u.port && !((u.protocol === "https:" && u.port === "443") || (u.protocol === "http:" && u.port === "80")) ? `:${u.port}` : "";
-  return `${u.protocol.toLowerCase()}//${u.hostname.toLowerCase()}${port}${normalizePath(u.pathname)}${u.search}`;
+  return raw;
 }
 
 export function redirectUrisMatch(registered: string, requested: string): boolean {
   const a = normalizeRedirectUri(registered);
   const b = normalizeRedirectUri(requested);
-  return a !== null && a === b;
+  return a !== null && b !== null && registered === requested;
 }
 
 /** Geeft de geregistreerde URI terug die overeenkomt (canoniek terugsturen), of null. */

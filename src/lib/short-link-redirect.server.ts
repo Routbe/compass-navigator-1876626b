@@ -1,4 +1,6 @@
 import { isTrustedLinkOwner } from "@/lib/short-link-trust";
+import { redirectDestination } from "@/lib/security/redirect-target";
+import { safeExternalRedirect } from "@/lib/security/safe-redirect.server";
 /**
  * Edge-side short-link resolution.
  *
@@ -67,7 +69,8 @@ export async function resolveShortLink(
   const code = slug.trim().toLowerCase();
   if (!code) return { status: "not_found" };
 
-  if (!process.env["DATABASE_URL"]) return null;
+  const { hasDatabase } = await import("@/lib/neon");
+  if (!hasDatabase()) return null;
 
   // Per-caller and per-code sliding windows. Spam protection only, not a
   // security boundary (see rate-limit.server.ts): a flood gets a 429 instead
@@ -149,11 +152,13 @@ export async function resolveShortLink(
     );
 
   // Trusted owners (tier 1/2, verified, or confirmed email older than 7 days) redirect directly; other links show the /go "you are leaving ROUT" page.
-  return { status: "ok", targetUrl: shortLinkDestination(row.target_url, trustedOwner), id: row.id };
+  const destination = await safeExternalRedirect(row.target_url, trustedOwner);
+  if (!destination) return { status: "error" };
+  return { status: "ok", targetUrl: destination, id: row.id };
 }
 
 export function shortLinkDestination(target: string, trustedOwner: boolean): string {
-  return trustedOwner ? target : `/go?w=${encodeURIComponent(target)}`;
+  return redirectDestination(target, trustedOwner) ?? "/";
 }
 
 /** Sober, multilingual "this link is paused" page (HTTP 200, never cached). */

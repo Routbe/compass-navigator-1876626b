@@ -9,7 +9,8 @@ function isDevOrigin(o: string): boolean {
 export function safeRedirect(raw: string | null | undefined, opts: { allowDev?: boolean } = {}): string {
   if (!raw || typeof raw !== "string") return "/";
   const s = raw.trim();
-  if (s.startsWith("/") && !s.startsWith("//") && !s.startsWith("/\\")) return s;
+  if (/[\\\u0000-\u001f\u007f]/.test(s)) return "/";
+  if (s.startsWith("/") && !s.startsWith("//") && !/%2f|%5c|%0[ad]/i.test(s)) return s;
   try {
     const u = new URL(s);
     if ((TRUSTED_ORIGINS as readonly string[]).includes(u.origin) || (opts.allowDev && isDevOrigin(u.origin))) return u.toString();
