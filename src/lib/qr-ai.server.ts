@@ -23,7 +23,7 @@ export async function suggestQrCampaign(data: { destination: string; goal: strin
     if (!suggestion.label || !suggestion.callToAction) return { ok: false as const, error: "AI gaf geen bruikbaar voorstel." };
     return { ok: true as const, ...suggestion, runId: run.getRunId() };
   } catch (error) {
-    if (NoObjectGeneratedError.isInstance(error)) {
+    if (NoObjectGeneratedError.isInstance(error) && error.text) {
       try {
         const suggestion = normalizeQrSuggestion(outputSchema.parse(JSON.parse(error.text)));
         if (suggestion.label && suggestion.callToAction) return { ok: true as const, ...suggestion, runId: run.getRunId() };
