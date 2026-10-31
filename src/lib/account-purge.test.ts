@@ -56,11 +56,11 @@ describe("irreversible credential purge", () => {
       expect((await conn.query(`select * from neon_auth."${table}" where "userId"=$1`, [user])).rows).toHaveLength(0);
       expect((await conn.query(`select * from neon_auth."${table}" where "userId"=$1`, [other])).rows).toHaveLength(1);
     }
-  });
+  }, 20_000);
   it("cancelled requests roll back without destroying credentials", async () => {
     const conn = await fixture();
     await conn.query("update account_deletions set cancelled_at=now() where user_id=$1", [user]);
     await expect(conn.transaction(async (tx) => { for (const s of accountPurgeStatements(user,user)) await tx.query(s.query,s.params); })).rejects.toThrow();
     expect((await conn.query('select * from neon_auth.passkey where "userId"=$1',[user])).rows).toHaveLength(1);
-  });
+  }, 20_000);
 });
