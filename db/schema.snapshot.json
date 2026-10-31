@@ -19890,7 +19890,7 @@
       "schema": "public",
       "name": "security_audit_refuse",
       "args": "",
-      "def": "CREATE OR REPLACE FUNCTION public.security_audit_refuse()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n  if tg_op = 'DELETE'\n     and tg_table_name = 'security_audit_logs'\n     and current_setting('rout.audit_retention', true) = 'on'\n     and old.created_at < now() - interval '365 days' then\n    return old;\n  end if;\n  raise exception 'security audit tables are append-only (% refused)', tg_op;\nend $function$"
+      "def": "CREATE OR REPLACE FUNCTION public.security_audit_refuse()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n  if tg_op = 'DELETE' and tg_table_name = 'security_audit_logs' then\n    if current_setting('rout.audit_retention',true) = 'on' and old.created_at < now() - interval '365 days' then return old; end if;\n    if current_setting('rout.purge_user_id',true) = old.user_id and exists (\n      select 1 from public.account_deletions d where d.user_id::text=old.user_id\n      and d.cancelled_at is null and d.completed_at is null and d.purge_after<=now()\n    ) then return old; end if;\n  end if;\n  raise exception 'security audit tables are append-only (% refused)', tg_op;\nend $function$"
     },
     {
       "schema": "public",

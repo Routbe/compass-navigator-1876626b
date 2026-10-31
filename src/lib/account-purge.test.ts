@@ -2,6 +2,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { accountPurgeStatements, PURGE_OWNER_TABLES } from "./account-purge";
+import { readFileSync } from "node:fs";
 
 const user = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
@@ -28,13 +29,25 @@ async function fixture() {
     create table public.oauth_access_tokens (user_id uuid references users(id) on delete cascade, token text);
     create table public.oauth_refresh_tokens (user_id uuid references users(id) on delete cascade, token text);`);
   for (const table of PURGE_OWNER_TABLES) await db.exec(`create table public.${table} (user_id uuid, secret text)`);
+  await db.exec(`alter table security_audit_logs alter column user_id type text using user_id::text;
+    alter table security_audit_logs add column created_at timestamptz not null default now();
+    create table public.user_ledger_keys(user_id uuid references users(id) on delete cascade,key_id text,primary key(user_id,key_id));
+    create table public.user_encrypted_audit_logs(user_id uuid references users(id) on delete cascade,key_id text,encrypted_payload text,
+      foreign key(user_id,key_id) references user_ledger_keys(user_id,key_id) on delete cascade);
+    create table public.identity_disclosure_logs(user_id uuid references users(id) on delete cascade,secret text);
+    create table public.account_email_changes(user_id uuid references users(id) on delete cascade,secret text);`);
+  await db.exec(readFileSync(new URL("../../db/0148_account_purge_audit_guard.sql",import.meta.url),"utf8"));
+  await db.exec(`create trigger security_audit_no_update before update or delete on security_audit_logs for each row execute function security_audit_refuse()`);
   for (const table of ["passkey", "twoFactor", "session", "account"]) await db.exec(`create table neon_auth."${table}" ("userId" text, secret text)`);
   for (const id of [user, other]) {
     await db.query("insert into users values ($1, $2)", [id, `${id}@example.com`]);
     await db.query('insert into neon_auth."user" values ($1, $2)', [id, `${id}@example.com`]);
     await db.query("insert into profiles values ($1,$2)", [id, id]);
     await db.query("insert into account_deletions values ($1,null,null,now()-interval '1 day')", [id]);
-    for (const table of PURGE_OWNER_TABLES) await db.query(`insert into ${table} values ($1,'sensitive')`, [id]);
+    for (const table of PURGE_OWNER_TABLES) await db.query(`insert into ${table}(user_id,secret) values ($1,'sensitive')`, [id]);
+    await db.query("insert into user_ledger_keys values($1,'key')",[id]);
+    await db.query("insert into user_encrypted_audit_logs values($1,'key','ciphertext')",[id]);
+    for (const table of ["identity_disclosure_logs","account_email_changes"]) await db.query(`insert into ${table} values($1,'sensitive')`,[id]);
     for (const table of ["passkey", "twoFactor", "session", "account"]) await db.query(`insert into neon_auth."${table}" values ($1,'credential')`, [id]);
     for (const table of ["oauth_access_tokens", "oauth_refresh_tokens"]) await db.query(`insert into ${table} values ($1,'token')`, [id]);
   }
@@ -47,7 +60,7 @@ describe("irreversible credential purge", () => {
     await conn.transaction(async (tx) => {
       for (const s of accountPurgeStatements(user, user)) await tx.query(s.query, s.params);
     });
-    for (const table of ["users", "oauth_access_tokens", "oauth_refresh_tokens", "app_email_assignments", "account_deletions"]) {
+    for (const table of ["users", "oauth_access_tokens", "oauth_refresh_tokens", "app_email_assignments", "account_deletions", "user_ledger_keys", "user_encrypted_audit_logs", "identity_disclosure_logs", "account_email_changes"]) {
       const column = table === "users" ? "id" : "user_id";
       expect((await conn.query(`select * from ${table} where ${column}=$1`, [user])).rows).toHaveLength(0);
       expect((await conn.query(`select * from ${table} where ${column}=$1`, [other])).rows).toHaveLength(1);
@@ -63,4 +76,13 @@ describe("irreversible credential purge", () => {
     await expect(conn.transaction(async (tx) => { for (const s of accountPurgeStatements(user,user)) await tx.query(s.query,s.params); })).rejects.toThrow();
     expect((await conn.query('select * from neon_auth.passkey where "userId"=$1',[user])).rows).toHaveLength(1);
   }, 20_000);
+  it("audit deletion refuses ordinary calls and forged other-user purge scope", async () => {
+    const conn=await fixture();
+    await expect(conn.query("delete from security_audit_logs where user_id=$1",[user])).rejects.toThrow("append-only");
+    await expect(conn.transaction(async tx => {
+      await tx.query("select set_config('rout.purge_user_id',$1,true)",[user]);
+      await tx.query("delete from security_audit_logs where user_id=$1",[other]);
+    })).rejects.toThrow("append-only");
+    expect((await conn.query("select * from security_audit_logs")).rows).toHaveLength(2);
+  },20000);
 });

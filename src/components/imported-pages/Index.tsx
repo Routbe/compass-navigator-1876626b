@@ -33,6 +33,7 @@ import { suggestFilename } from "@/lib/brand";
 import { ValuesSection } from "@/components/ValuesSection";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { QRCampaignSuggestions } from "@/components/QRCampaignSuggestions";
+import { smartLabelSelection } from "@/lib/qr-smart-labels";
 
 const Index = () => {
   const { t } = useI18n();
@@ -190,6 +191,7 @@ const Index = () => {
 
   // Tracking
   const [trackedQr, setTrackedQr] = useState<TrackedQR | null>(null);
+  const [smartLabel, setSmartLabel] = useState<ReturnType<typeof smartLabelSelection> | null>(null);
 
   // Target URL that would be redirected through if tracking is enabled
   const trackableTarget = useMemo(() => {
@@ -367,6 +369,7 @@ const Index = () => {
     if (signedGo && signedGo.from === qrValue) return signedGo.to;
     return qrValue;
   }, [qrMode, trackedQr, qrType, qrValue, signedGo]);
+  const activeSmartLabel = smartLabel?.destination === currentValue ? smartLabel : null;
 
   // Clear any minted tracked link when user switches back to Static mode.
   useEffect(() => {
@@ -514,7 +517,8 @@ const Index = () => {
           <div className="w-full max-w-md mt-4 flex justify-end">
             <SaveQRButton
               qrType={qrType}
-              qrValue={qrValue}
+              qrValue={finalQrValue}
+              nameHint={activeSmartLabel?.label}
               disabled={!qrValue}
               config={{
                 fgColor,
@@ -525,6 +529,8 @@ const Index = () => {
                 qrSize,
                 qrFormat,
                 qrMargin,
+                frameId, frameLabel, frameFont, frameTweaks, captionEnabled, captionText,
+                ...(activeSmartLabel ? { smartLabel: activeSmartLabel } : {}),
               }}
             />
           </div>
@@ -580,6 +586,7 @@ const Index = () => {
                 targetUrl={trackableTarget}
                 tracked={trackedQr}
                 onTrackedChange={setTrackedQr}
+                suggestedLabel={activeSmartLabel?.label}
               />
             </div>
           )}
@@ -587,7 +594,12 @@ const Index = () => {
 
         {/* Right column — styling tools (independent scroll on desktop) */}
         <aside className="min-w-0 border-t border-border/60 bg-background px-4 pb-8 pt-6 sm:px-6 lg:h-full lg:overflow-y-auto lg:border-l lg:border-t-0 lg:px-6 lg:pt-8 [scrollbar-width:thin]">
-          <QRCampaignSuggestions destination={urlValue} onApply={(url, label, cta) => { setQrType("url"); setUrlValue(url); handleFilenameChange(label); setFrameLabel(cta); setCaptionEnabled(true); setCaptionTouched(true); setCaptionText(cta); }} />
+          <QRCampaignSuggestions destination={urlValue} onApply={(url, label, cta) => {
+            const accepted = smartLabelSelection({ destination: url, label, callToAction: cta });
+            setSmartLabel(accepted); setTrackedQr(null); setQrType("url"); setUrlValue(accepted.destination);
+            handleFilenameChange(accepted.label); setFrameLabel(accepted.callToAction);
+            setCaptionEnabled(true); setCaptionTouched(true); setCaptionText(accepted.callToAction);
+          }} />
           <QRStyleTabs
             qrType={qrType}
             value={currentValue}

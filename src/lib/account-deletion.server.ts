@@ -85,7 +85,7 @@ export async function purgeDueDeletions(limit = 25) {
     const row = toRow(r);
     if (!isDue(row, Date.now())) continue;
     const userId = String(r["user_id"]);
-    const users = (await sql`select user_metadata->>'neon_auth_id' as auth_id from public.users where id = ${userId}`) as Row[];
+    const users = (await sql`select coalesce(auth_user_id::text, user_metadata->>'neon_auth_id') as auth_id from public.users where id = ${userId}`) as Row[];
     const authId = (users[0]?.["auth_id"] as string | null) ?? userId;
     try {
       const audit = await auditStatement(userId, "purged");

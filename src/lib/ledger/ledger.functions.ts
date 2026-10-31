@@ -1,10 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireAuth } from "@/lib/auth/middleware";
-
-const envelope = z.object({ v: z.literal(1), source: z.enum(["recovery", "prf"]), salt: z.string().max(100), iv: z.string().max(40), ciphertext: z.string().min(100).max(12000), credentialId: z.string().max(2048).optional() }).strict();
-export const ledgerPublicKeySchema = z.object({ kty: z.literal("RSA"), n: z.string().min(512).max(1024), e: z.literal("AQAB"), alg: z.literal("RSA-OAEP-256").optional(), ext: z.boolean().optional(), key_ops: z.array(z.literal("encrypt")).optional() }).strict();
-export type LedgerPublicKey = z.infer<typeof ledgerPublicKeySchema>;
+import { ledgerEnvelopeSchema as envelope, ledgerPublicKeySchema, ledgerKeyInputSchema } from "./key-validation";
+export type { LedgerPublicKey } from "./key-validation";
 
 export const getLedgerKeys = createServerFn({ method: "GET" }).middleware([requireAuth]).handler(async ({ context }) => {
   const { sql } = await import("@/lib/neon");
@@ -16,7 +14,7 @@ export const getLedgerKeys = createServerFn({ method: "GET" }).middleware([requi
 
 /** Normal authenticated account access suffices to reset LOST ledger keys, not account credentials. */
 export const saveLedgerKeys = createServerFn({ method: "POST" }).middleware([requireAuth])
-  .inputValidator((d: unknown) => z.object({ publicKey: ledgerPublicKeySchema, envelopes: z.array(envelope).min(1).max(2), expectedKeyId: z.string().nullable() }).strict().parse(d))
+  .inputValidator((d: unknown) => ledgerKeyInputSchema.parse(d))
   .handler(async ({ data, context }) => {
     if (!data.envelopes.some((e) => e.source === "recovery")) throw new Error("Een lokale herstelcode is verplicht.");
     const { publicKeyId } = await import("./crypto");
