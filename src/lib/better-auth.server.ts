@@ -298,6 +298,20 @@ export function createRoutAuth(request?: Request) {
       rpName: "ROUT",
       origin: origin ?? canonicalAppUrl(),
       schema: { passkey: { modelName: "neon_auth.passkey" } },
+      authentication: {
+        afterVerification: async ({ verification, clientData, ctx }: { verification: { authenticationInfo: { userVerified: boolean } }; clientData: { id: string }; ctx: { setCookie: (name: string, value: string, attributes: { httpOnly: boolean; secure: boolean; sameSite: "strict"; path: string; maxAge: number }) => void } }) => {
+          // A fresh password/email session is never evidence of biometric verification.
+          if (!verification.authenticationInfo.userVerified) return;
+          const { sql } = await import("@/lib/neon");
+          const rows = await sql`select u.id from public.users u join neon_auth.passkey p
+            on p."userId"::text = coalesce(u.auth_user_id::text, u.user_metadata->>'neon_auth_id')
+            where p."credentialID" = ${clientData.id} limit 1`;
+          const userId = rows[0]?.["id"];
+          if (typeof userId !== "string") return;
+          const { grantStepUp } = await import("@/lib/auth/step-up.server");
+          await grantStepUp(userId, "passkey", (name, value) => ctx.setCookie(name, value, { httpOnly: true, secure: true, sameSite: "strict", path: "/", maxAge: 120 }));
+        },
+      },
     } as never),
   );
 
@@ -323,6 +337,13 @@ export function createRoutAuth(request?: Request) {
         create: {
           after: async (session: { id: string; userId?: string; userAgent?: string | null }) => {
             if (!session.userId) return;
+            const { sql } = await import("@/lib/neon");
+            const rows = await sql`select id from public.users where auth_user_id::text=${session.userId} or user_metadata->>'neon_auth_id'=${session.userId} limit 1`;
+            const id = rows[0]?.["id"];
+            if (typeof id === "string") {
+              const { appendEncryptedUserEvent } = await import("@/lib/ledger/ledger.server");
+              await appendEncryptedUserEvent(id, { event_type: "sign_in", timestamp: new Date().toISOString() });
+            }
             const { later, notifyNewSignIn } = await import("./site-mail.server");
             later(() => notifyNewSignIn(session.userId as string, session.id, session.userAgent ?? null));
           },

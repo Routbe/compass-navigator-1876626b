@@ -154,6 +154,20 @@ export interface PublicAccountDeletionsRow {
   "completed_at": string | Date | null;
 }
 
+export interface PublicAccountEmailChangesRow {
+  "id": string;
+  "user_id": string;
+  "old_email": string;
+  "new_email": string;
+  "confirm_token_hash": string;
+  "freeze_token_hash": string;
+  "created_at": string | Date;
+  "recovery_until": string | Date;
+  "warning_sent_at": string | Date | null;
+  "confirmed_at": string | Date | null;
+  "frozen_at": string | Date | null;
+}
+
 export interface PublicAccountMergeTicketsRow {
   "id": string;
   "primary_user_id": string;
@@ -736,6 +750,8 @@ export interface PublicIdentityDisclosureLogsRow {
   "disclosed_scopes": Array<string>;
   "disclosed_at": string | Date;
   "ip_hash": string;
+  "previous_hash": string;
+  "entry_hash": string;
 }
 
 export interface PublicIdentityLabelsRow {
@@ -1654,6 +1670,14 @@ export interface PublicUserCustomPresenceRow {
   "updated_at": string | Date;
 }
 
+export interface PublicUserEncryptedAuditLogsRow {
+  "id": string;
+  "user_id": string;
+  "key_id": string;
+  "encrypted_payload": string;
+  "created_at": string | Date;
+}
+
 export interface PublicUserFeatureBlocksRow {
   "id": string;
   "user_id": string;
@@ -1717,6 +1741,15 @@ export interface PublicUserIntegrationsRow {
   "verified_at": string | Date | null;
   "youtube_presence": JsonValue | null;
   "youtube_presence_at": string | Date | null;
+}
+
+export interface PublicUserLedgerKeysRow {
+  "user_id": string;
+  "key_id": string;
+  "ledger_public_key": JsonValue;
+  "encrypted_ledger_private_key": JsonValue;
+  "created_at": string | Date;
+  "retired_at": string | Date | null;
 }
 
 export interface PublicUserLinkedAccountsRow {
@@ -2002,6 +2035,7 @@ export interface DbTables {
   "neon_auth.verification": NeonAuthVerificationRow;
   "public.account_deletion_audit": PublicAccountDeletionAuditRow;
   "public.account_deletions": PublicAccountDeletionsRow;
+  "public.account_email_changes": PublicAccountEmailChangesRow;
   "public.account_merge_tickets": PublicAccountMergeTicketsRow;
   "public.admin_audit_log": PublicAdminAuditLogRow;
   "public.admin_bootstrap_tokens": PublicAdminBootstrapTokensRow;
@@ -2127,10 +2161,12 @@ export interface DbTables {
   "public.user_calendar_feeds": PublicUserCalendarFeedsRow;
   "public.user_custom_badges": PublicUserCustomBadgesRow;
   "public.user_custom_presence": PublicUserCustomPresenceRow;
+  "public.user_encrypted_audit_logs": PublicUserEncryptedAuditLogsRow;
   "public.user_feature_blocks": PublicUserFeatureBlocksRow;
   "public.user_identities": PublicUserIdentitiesRow;
   "public.user_integration_links": PublicUserIntegrationLinksRow;
   "public.user_integrations": PublicUserIntegrationsRow;
+  "public.user_ledger_keys": PublicUserLedgerKeysRow;
   "public.user_linked_accounts": PublicUserLinkedAccountsRow;
   "public.user_music_status": PublicUserMusicStatusRow;
   "public.user_phone_numbers": PublicUserPhoneNumbersRow;

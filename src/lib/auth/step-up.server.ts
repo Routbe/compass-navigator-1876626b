@@ -85,18 +85,21 @@ export async function ensureStepUpSession(userId: string, action: StepUpAction, 
   return method;
 }
 
-export async function grantStepUp(userId: string, method: StepUpMethod) {
+export async function grantStepUp(userId: string, method: StepUpMethod, emitCookie?: (name: string, value: string) => void) {
   const allowed = allowedStepUpMethods(await enrolledFactors(userId));
   if (!allowed.includes(method)) throw new Error("Deze verificatiemethode is niet toegestaan voor je account.");
   const value = await sign(stepUpPayload(userId, method, Math.floor(Date.now() / 1000)));
-  const { setCookie } = await import("@tanstack/react-start/server");
-  setCookie(STEP_UP_COOKIE, value, {
+  if (emitCookie) emitCookie(STEP_UP_COOKIE, value);
+  else {
+    const { setCookie } = await import("@tanstack/react-start/server");
+    setCookie(STEP_UP_COOKIE, value, {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
     path: "/",
     maxAge: STEP_UP_MAX_AGE_SEC,
-  });
+    });
+  }
   const { recordSecurityEvent } = await import("@/lib/audit-log.server");
   void recordSecurityEvent({ eventType: "step_up.granted", userId, payload: { method } });
 }

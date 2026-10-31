@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { AppWindow, Loader2, MailCheck } from "lucide-react";
 import { toast } from "sonner";
+import { withStepUp } from "@/components/auth/StepUpDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -49,7 +50,7 @@ export function ConnectedAppsPanel() {
   async function onRevoke(clientId: string, name: string) {
     setBusy(clientId);
     try {
-      await revoke({ data: { clientId } });
+      await withStepUp(() => revoke({ data: { clientId } }));
       toast.success(`Toegang voor ${name} is ingetrokken.`);
       await refresh();
     } catch (e) {
@@ -62,7 +63,7 @@ export function ConnectedAppsPanel() {
   async function onChoose(clientId: string, choiceId: string) {
     setBusy(clientId);
     try {
-      await setEmail({ data: { clientId, choiceId } });
+      await withStepUp(() => setEmail({ data: { clientId, choiceId } }));
       toast.success("E-mailadres voor deze app bijgewerkt.");
       await refresh();
     } catch (e) {
@@ -75,7 +76,7 @@ export function ConnectedAppsPanel() {
   async function onBulk() {
     setBusy("bulk");
     try {
-      const r = await bulk({ data: { clientIds: picked } });
+      const r = await withStepUp(() => bulk({ data: { clientIds: picked } }));
       toast.success(`${r.updated} app(s) bijgewerkt naar ${mail.data?.primary ?? "je nieuwe adres"}.`);
       setWizard(false);
       await refresh();

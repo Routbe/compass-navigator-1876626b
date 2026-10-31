@@ -65,7 +65,9 @@ import { Route as ApiPaymentStatusRouteImport } from './routes/api_.payment-stat
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AuthAuthViewRouteImport } from './routes/auth.$authView'
 import { Route as AuthBlueskyRouteImport } from './routes/auth.bluesky'
+import { Route as AuthConfirmEmailChangeRouteImport } from './routes/auth_.confirm-email-change'
 import { Route as AuthContinueRouteImport } from './routes/auth_.continue'
+import { Route as AuthFreezeAccountRouteImport } from './routes/auth_.freeze-account'
 import { Route as BookEventTypeIdRouteImport } from './routes/book.$eventTypeId'
 import { Route as BookingBookingIdRouteImport } from './routes/booking.$bookingId'
 import { Route as BrandSplatRouteImport } from './routes/brand.$'
@@ -488,9 +490,19 @@ const AuthBlueskyRoute = AuthBlueskyRouteImport.update({
   path: '/bluesky',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthConfirmEmailChangeRoute = AuthConfirmEmailChangeRouteImport.update({
+  id: '/auth_/confirm-email-change',
+  path: '/auth/confirm-email-change',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthContinueRoute = AuthContinueRouteImport.update({
   id: '/auth_/continue',
   path: '/auth/continue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthFreezeAccountRoute = AuthFreezeAccountRouteImport.update({
+  id: '/auth_/freeze-account',
+  path: '/auth/freeze-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookEventTypeIdRoute = BookEventTypeIdRouteImport.update({
@@ -1321,7 +1333,9 @@ export interface FileRoutesByFullPath {
   '/api/payment-status': typeof ApiPaymentStatusRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/auth/bluesky': typeof AuthBlueskyRoute
+  '/auth/confirm-email-change': typeof AuthConfirmEmailChangeRoute
   '/auth/continue': typeof AuthContinueRoute
+  '/auth/freeze-account': typeof AuthFreezeAccountRoute
   '/book/$eventTypeId': typeof BookEventTypeIdRoute
   '/booking/$bookingId': typeof BookingBookingIdRoute
   '/brand/$': typeof BrandSplatRoute
@@ -1517,7 +1531,9 @@ export interface FileRoutesByTo {
   '/api/payment-status': typeof ApiPaymentStatusRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/auth/bluesky': typeof AuthBlueskyRoute
+  '/auth/confirm-email-change': typeof AuthConfirmEmailChangeRoute
   '/auth/continue': typeof AuthContinueRoute
+  '/auth/freeze-account': typeof AuthFreezeAccountRoute
   '/book/$eventTypeId': typeof BookEventTypeIdRoute
   '/booking/$bookingId': typeof BookingBookingIdRoute
   '/brand/$': typeof BrandSplatRoute
@@ -1716,7 +1732,9 @@ export interface FileRoutesById {
   '/api_/payment-status': typeof ApiPaymentStatusRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/auth/bluesky': typeof AuthBlueskyRoute
+  '/auth_/confirm-email-change': typeof AuthConfirmEmailChangeRoute
   '/auth_/continue': typeof AuthContinueRoute
+  '/auth_/freeze-account': typeof AuthFreezeAccountRoute
   '/book/$eventTypeId': typeof BookEventTypeIdRoute
   '/booking/$bookingId': typeof BookingBookingIdRoute
   '/brand/$': typeof BrandSplatRoute
@@ -1917,7 +1935,9 @@ export interface FileRouteTypes {
     | '/api/payment-status'
     | '/auth/$authView'
     | '/auth/bluesky'
+    | '/auth/confirm-email-change'
     | '/auth/continue'
+    | '/auth/freeze-account'
     | '/book/$eventTypeId'
     | '/booking/$bookingId'
     | '/brand/$'
@@ -2113,7 +2133,9 @@ export interface FileRouteTypes {
     | '/api/payment-status'
     | '/auth/$authView'
     | '/auth/bluesky'
+    | '/auth/confirm-email-change'
     | '/auth/continue'
+    | '/auth/freeze-account'
     | '/book/$eventTypeId'
     | '/booking/$bookingId'
     | '/brand/$'
@@ -2311,7 +2333,9 @@ export interface FileRouteTypes {
     | '/api_/payment-status'
     | '/auth/$authView'
     | '/auth/bluesky'
+    | '/auth_/confirm-email-change'
     | '/auth_/continue'
+    | '/auth_/freeze-account'
     | '/book/$eventTypeId'
     | '/booking/$bookingId'
     | '/brand/$'
@@ -2503,7 +2527,9 @@ export interface RootRouteChildren {
   DotwellKnownOpenidConfigurationRoute: typeof DotwellKnownOpenidConfigurationRoute
   AccountAccountViewRoute: typeof AccountAccountViewRoute
   ApiPaymentStatusRoute: typeof ApiPaymentStatusRoute
+  AuthConfirmEmailChangeRoute: typeof AuthConfirmEmailChangeRoute
   AuthContinueRoute: typeof AuthContinueRoute
+  AuthFreezeAccountRoute: typeof AuthFreezeAccountRoute
   BookEventTypeIdRoute: typeof BookEventTypeIdRoute
   BookingBookingIdRoute: typeof BookingBookingIdRoute
   BrandSplatRoute: typeof BrandSplatRoute
@@ -2992,11 +3018,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthBlueskyRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/auth_/confirm-email-change': {
+      id: '/auth_/confirm-email-change'
+      path: '/auth/confirm-email-change'
+      fullPath: '/auth/confirm-email-change'
+      preLoaderRoute: typeof AuthConfirmEmailChangeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth_/continue': {
       id: '/auth_/continue'
       path: '/auth/continue'
       fullPath: '/auth/continue'
       preLoaderRoute: typeof AuthContinueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth_/freeze-account': {
+      id: '/auth_/freeze-account'
+      path: '/auth/freeze-account'
+      fullPath: '/auth/freeze-account'
+      preLoaderRoute: typeof AuthFreezeAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/book/$eventTypeId': {
@@ -4251,7 +4291,9 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownOpenidConfigurationRoute: DotwellKnownOpenidConfigurationRoute,
   AccountAccountViewRoute: AccountAccountViewRoute,
   ApiPaymentStatusRoute: ApiPaymentStatusRoute,
+  AuthConfirmEmailChangeRoute: AuthConfirmEmailChangeRoute,
   AuthContinueRoute: AuthContinueRoute,
+  AuthFreezeAccountRoute: AuthFreezeAccountRoute,
   BookEventTypeIdRoute: BookEventTypeIdRoute,
   BookingBookingIdRoute: BookingBookingIdRoute,
   BrandSplatRoute: BrandSplatRoute,

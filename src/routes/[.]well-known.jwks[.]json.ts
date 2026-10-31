@@ -6,7 +6,8 @@ export const Route = createFileRoute("/.well-known/jwks.json")({
     handlers: {
       GET: async () => {
         const { publicJwks } = await import("@/lib/oauth/provider.server");
-        return Response.json(await publicJwks(), {
+        const { hybridReadyJwks } = await import("@/lib/security/hybrid-jwks");
+        return Response.json(hybridReadyJwks(await publicJwks()), {
           headers: { "cache-control": "public, max-age=300", "access-control-allow-origin": "*" },
         });
       },

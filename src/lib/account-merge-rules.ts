@@ -42,6 +42,9 @@ export const MERGE_TABLES: Readonly<Record<string, MergeTableRule>> = {
   // Append-only audit trails without FK: history stays as written.
   security_audit_logs: r("retain"),
   identity_link_events: r("retain"),
+  user_ledger_keys: r("skip"),
+  user_encrypted_audit_logs: r("skip"),
+  account_email_changes: r("skip"),
   // Per-login / short-lived rows.
   user_sessions: r("drop"),
   security_codes: r("drop"),
@@ -107,7 +110,7 @@ export const MERGE_TABLES: Readonly<Record<string, MergeTableRule>> = {
   email_aliases: r("reassign"),
   feedback_forms: r("reassign"),
   gallery_objects: r("reassign"),
-  identity_disclosure_logs: r("reassign"),
+  identity_disclosure_logs: r("skip"),
   influencer_requests: r("reassign"),
   invoice_deliveries: r("reassign"),
   notifications: r("reassign"),

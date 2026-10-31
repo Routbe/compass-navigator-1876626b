@@ -35,6 +35,8 @@ export const revokeConnectedApp = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .inputValidator((d) => z.object({ clientId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data, context }) => {
+    const { requirePasskeyStepUp } = await import("@/lib/auth/step-up-guard.server");
+    await requirePasskeyStepUp(context.userId, "app_email_revoke");
     const { sql } = await import("@/lib/neon");
     await sql.transaction([
       sql`update public.oauth_consents set revoked_at = now()
@@ -92,6 +94,8 @@ export const setAppEmail = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .inputValidator((d) => z.object({ clientId: z.string().min(1).max(200), choiceId: z.string().min(1).max(64) }).parse(d))
   .handler(async ({ data, context }) => {
+    const { requirePasskeyStepUp } = await import("@/lib/auth/step-up-guard.server");
+    await requirePasskeyStepUp(context.userId, "app_email_reassign");
     const { sql } = await import("@/lib/neon");
     const consent = await sql`select 1 from public.oauth_consents where user_id = ${context.userId} and client_id = ${data.clientId} and revoked_at is null limit 1`;
     if (!consent.length) throw new Error("Deze app is niet met je account verbonden.");
@@ -114,6 +118,8 @@ export const bulkUpdateAppEmails = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .inputValidator((d) => z.object({ clientIds: z.array(z.string().min(1).max(200)).min(1).max(200) }).parse(d))
   .handler(async ({ data, context }) => {
+    const { requirePasskeyStepUp } = await import("@/lib/auth/step-up-guard.server");
+    await requirePasskeyStepUp(context.userId, "app_email_reassign");
     const { sql } = await import("@/lib/neon");
     const { planBulkEmailUpdate } = await import("./backchannel");
     const u = ((await sql`select email from public.users where id = ${context.userId} limit 1`) as Record<string, unknown>[])[0];

@@ -1368,6 +1368,147 @@
     },
     {
       "schema": "public",
+      "name": "account_email_changes",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "notNull": true,
+          "default": "gen_random_uuid()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "old_email",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "new_email",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "confirm_token_hash",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "freeze_token_hash",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "recovery_until",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "(now() + '48:00:00'::interval)",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "warning_sent_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "confirmed_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "frozen_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "account_email_changes_confirm_token_hash_key",
+          "kind": "u",
+          "def": "UNIQUE (confirm_token_hash)"
+        },
+        {
+          "name": "account_email_changes_freeze_token_hash_key",
+          "kind": "u",
+          "def": "UNIQUE (freeze_token_hash)"
+        },
+        {
+          "name": "account_email_changes_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "account_email_changes_user_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX email_safety_owner ON public.account_email_changes USING btree (user_id, recovery_until)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [
+        {
+          "name": "email_changes_owner",
+          "permissive": true,
+          "roles": [
+            "public"
+          ],
+          "cmd": "ALL",
+          "using": "(user_id = rout_current_user_id())",
+          "check": "(user_id = rout_current_user_id())"
+        }
+      ],
+      "grants": {
+        "rout_app": [
+          "INSERT",
+          "SELECT",
+          "UPDATE"
+        ]
+      }
+    },
+    {
+      "schema": "public",
       "name": "account_merge_tickets",
       "columns": [
         {
@@ -7152,6 +7293,22 @@
           "default": null,
           "identity": null,
           "generated": null
+        },
+        {
+          "name": "previous_hash",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "entry_hash",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
         }
       ],
       "constraints": [
@@ -7179,7 +7336,10 @@
       "indexes": [
         "CREATE INDEX identity_disclosure_logs_user_idx ON public.identity_disclosure_logs USING btree (user_id, disclosed_at DESC)"
       ],
-      "triggers": [],
+      "triggers": [
+        "CREATE TRIGGER disclosure_chain_insert BEFORE INSERT ON public.identity_disclosure_logs FOR EACH ROW EXECUTE FUNCTION disclosure_chain_insert()",
+        "CREATE TRIGGER disclosure_no_rewrite BEFORE UPDATE ON public.identity_disclosure_logs FOR EACH ROW EXECUTE FUNCTION disclosure_no_rewrite()"
+      ],
       "rls": true,
       "forceRls": false,
       "policies": [
@@ -15910,6 +16070,93 @@
     },
     {
       "schema": "public",
+      "name": "user_encrypted_audit_logs",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "notNull": true,
+          "default": "gen_random_uuid()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "key_id",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "encrypted_payload",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "user_encrypted_audit_logs_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "user_encrypted_audit_logs_user_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "user_encrypted_audit_logs_user_id_key_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (user_id, key_id) REFERENCES user_ledger_keys(user_id, key_id) ON DELETE CASCADE"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX encrypted_ledger_user_cursor ON public.user_encrypted_audit_logs USING btree (user_id, created_at DESC, id DESC)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [
+        {
+          "name": "encrypted_ledger_owner",
+          "permissive": true,
+          "roles": [
+            "public"
+          ],
+          "cmd": "ALL",
+          "using": "(user_id = rout_current_user_id())",
+          "check": "(user_id = rout_current_user_id())"
+        }
+      ],
+      "grants": {
+        "rout_app": [
+          "INSERT",
+          "SELECT"
+        ]
+      }
+    },
+    {
+      "schema": "public",
       "name": "user_feature_blocks",
       "columns": [
         {
@@ -16536,6 +16783,102 @@
       "grants": {
         "rout_app": [
           "DELETE",
+          "INSERT",
+          "SELECT",
+          "UPDATE"
+        ]
+      }
+    },
+    {
+      "schema": "public",
+      "name": "user_ledger_keys",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "key_id",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "ledger_public_key",
+          "type": "jsonb",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "encrypted_ledger_private_key",
+          "type": "jsonb",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "retired_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "ledger_public_only",
+          "kind": "c",
+          "def": "CHECK ((((ledger_public_key ->> 'kty'::text) = 'RSA'::text) AND (NOT (ledger_public_key ? 'd'::text)) AND (NOT (ledger_public_key ? 'p'::text))))"
+        },
+        {
+          "name": "user_ledger_keys_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (user_id, key_id)"
+        },
+        {
+          "name": "user_ledger_keys_user_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX ledger_one_active_key ON public.user_ledger_keys USING btree (user_id) WHERE (retired_at IS NULL)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [
+        {
+          "name": "ledger_keys_owner",
+          "permissive": true,
+          "roles": [
+            "public"
+          ],
+          "cmd": "ALL",
+          "using": "(user_id = rout_current_user_id())",
+          "check": "(user_id = rout_current_user_id())"
+        }
+      ],
+      "grants": {
+        "rout_app": [
           "INSERT",
           "SELECT",
           "UPDATE"
@@ -17517,7 +17860,8 @@
         "CREATE UNIQUE INDEX users_email_normalized_key ON public.users USING btree (email_normalized)"
       ],
       "triggers": [
-        "CREATE TRIGGER on_user_created AFTER INSERT ON public.users FOR EACH ROW EXECUTE FUNCTION handle_new_user()"
+        "CREATE TRIGGER on_user_created AFTER INSERT ON public.users FOR EACH ROW EXECUTE FUNCTION handle_new_user()",
+        "CREATE TRIGGER reserve_recovery_email BEFORE INSERT OR UPDATE OF email ON public.users FOR EACH ROW EXECUTE FUNCTION reserve_recovery_email()"
       ],
       "rls": true,
       "forceRls": false,
@@ -19334,6 +19678,30 @@
     },
     {
       "schema": "public",
+      "name": "disclosure_chain_insert",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION public.disclosure_chain_insert()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\ndeclare prior_time timestamptz;\nbegin\n  -- Serialize all writes for this owner; a concurrent writer cannot fork the chain.\n  perform pg_advisory_xact_lock(hashtextextended(new.user_id::text, 146));\n  select entry_hash,disclosed_at into new.previous_hash,prior_time from public.identity_disclosure_logs\n    where user_id=new.user_id order by disclosed_at desc,id desc limit 1;\n  new.previous_hash := coalesce(new.previous_hash,repeat('0',64));\n  new.disclosed_at := greatest(date_trunc('milliseconds',clock_timestamp()), coalesce(prior_time + interval '1 millisecond', '-infinity'::timestamptz));\n  new.entry_hash := public.disclosure_hash(new.previous_hash,new.user_id,new.client_id,new.disclosed_scopes,new.disclosed_at);\n  return new;\nend $function$"
+    },
+    {
+      "schema": "public",
+      "name": "disclosure_hash",
+      "args": "prev text, uid uuid, cid text, scopes text[], ts timestamp with time zone",
+      "def": "CREATE OR REPLACE FUNCTION public.disclosure_hash(prev text, uid uuid, cid text, scopes text[], ts timestamp with time zone)\n RETURNS text\n LANGUAGE plpgsql\n IMMUTABLE\nAS $function$\ndeclare s text; input text := ''; fields text[];\nbegin\n  fields := array[prev, uid::text, cid] || scopes || array[to_char(ts at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.MS\"Z\"')];\n  foreach s in array fields loop input := input || octet_length(s)::text || ':' || s; end loop;\n  return encode(sha256(convert_to(input, 'UTF8')), 'hex');\nend $function$"
+    },
+    {
+      "schema": "public",
+      "name": "disclosure_no_rewrite",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION public.disclosure_no_rewrite()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin raise exception 'disclosure ledger cannot be rewritten'; end $function$"
+    },
+    {
+      "schema": "public",
+      "name": "email_freeze_owner",
+      "args": "token_hash text",
+      "def": "CREATE OR REPLACE FUNCTION public.email_freeze_owner(token_hash text)\n RETURNS uuid\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select user_id from public.account_email_changes where freeze_token_hash=token_hash and recovery_until>now() and frozen_at is null limit 1\n$function$"
+    },
+    {
+      "schema": "public",
       "name": "enforce_short_link_limits",
       "args": "",
       "def": "CREATE OR REPLACE FUNCTION public.enforce_short_link_limits()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  is_verified boolean;\n  per_hour int;\n  max_total int;\n  recent int;\n  total int;\nbegin\n  if new.user_id is null then\n    raise exception 'RATE_LIMIT_SHORT_LINKS: short links need an owner';\n  end if;\n\n  select coalesce(p.verified, false) or coalesce(p.is_paid, false)\n           or coalesce(p.is_early_believer, false)\n    into is_verified\n    from public.profiles p\n   where p.id = new.user_id;\n\n  if coalesce(is_verified, false) then\n    per_hour := 60;\n    max_total := 1000;\n  else\n    per_hour := 10;\n    max_total := 25;\n  end if;\n\n  select count(*) into recent\n    from public.tracked_qrs q\n   where q.user_id = new.user_id\n     and q.created_at > now() - interval '1 hour';\n\n  if recent >= per_hour then\n    raise exception 'RATE_LIMIT_SHORT_LINKS: too many new short links in the last hour';\n  end if;\n\n  select count(*) into total\n    from public.tracked_qrs q\n   where q.user_id = new.user_id;\n\n  if total >= max_total then\n    raise exception 'RATE_LIMIT_SHORT_LINKS: short link quota reached';\n  end if;\n\n  return new;\nend;\n$function$"
@@ -19469,6 +19837,12 @@
       "name": "read_public_feedback",
       "args": "p_slug text, p_space text, p_handle text",
       "def": "CREATE OR REPLACE FUNCTION public.read_public_feedback(p_slug text, p_space text, p_handle text)\n RETURNS jsonb\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select coalesce(jsonb_agg(jsonb_build_object(\n    'id',f.id,'title',f.title,'type',f.type,'slug',f.slug,\n    'showOnProfile',f.show_on_profile,'fullPage',f.full_page,\n    'profileSpace',f.profile_space,'profileHandle',f.profile_handle,\n    'featured',coalesce((select jsonb_agg(jsonb_build_object(\n      'id',r.id,'formId',r.form_id,'rating',r.rating,'comment',r.comment,\n      'reviewerName',r.reviewer_name,'isFeatured',true,'allowFeatured',true,'createdAt',r.created_at))\n      from (select * from public.feedback_responses where form_id=f.id and is_featured and allow_featured\n            order by created_at desc, id limit 20) r),'[]'::jsonb)\n  )),'[]'::jsonb) from (\n    select * from public.feedback_forms f\n    where public.feedback_form_is_public(f)\n      and (case when p_slug is not null then f.slug=p_slug\n           else f.profile_space=p_space and f.profile_handle=p_handle and f.show_on_profile end)\n    order by f.created_at limit 50\n  ) f\n$function$"
+    },
+    {
+      "schema": "public",
+      "name": "reserve_recovery_email",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION public.reserve_recovery_email()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n  if exists (select 1 from public.account_email_changes c where lower(c.old_email)=lower(new.email)\n      and c.user_id<>new.id and c.recovery_until>now()) then\n    raise exception 'email_reserved_for_recovery';\n  end if;\n  return new;\nend $function$"
     },
     {
       "schema": "public",

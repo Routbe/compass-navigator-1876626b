@@ -54,15 +54,10 @@ export const completeStepUp = createServerFn({ method: "POST" })
         throw new Error("De code klopt niet.");
       }
     } else {
-      // Passkey: the browser just completed a WebAuthn sign-in, which created a new session.
-      const { createRoutAuth } = await import("@/lib/better-auth.server");
-      const s = (await createRoutAuth(request).api.getSession({ headers: request.headers })) as
-        | { session?: { createdAt?: string | Date } }
-        | null;
-      const created = s?.session?.createdAt ? new Date(s.session.createdAt).getTime() : 0;
-      if (!created || Date.now() - created > STEP_UP_MAX_AGE_SEC * 1000) {
-        throw new Error("Passkey-verificatie niet gevonden. Probeer opnieuw.");
-      }
+      const { requirePasskeyStepUp } = await import("./step-up-guard.server");
+      await requirePasskeyStepUp(context.userId, "primary_email_change");
+      // Only the verified WebAuthn hook grants passkey proofs. Never renew an old proof here.
+      return { ok: true as const };
     }
     const { grantStepUp } = await import("./step-up.server");
     await grantStepUp(context.userId, data.method);

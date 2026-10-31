@@ -60,7 +60,7 @@ export async function findUserByEmail(email: string): Promise<Row | null> {
 
 export async function findUserById(id: string): Promise<SessionUser | null> {
   const rows = (await sql`
-    select ${sql.unsafe(USER_COLUMNS)} from public.users where id = ${id} limit 1
+    select ${sql.unsafe(USER_COLUMNS)} from public.users where id = ${id} and not is_disabled limit 1
   `) as Row[];
   return rows[0] ? toSessionUser(rows[0]) : null;
 }
@@ -113,15 +113,8 @@ export async function changePassword(userId: string, newPassword: string) {
 }
 
 export async function changeEmail(userId: string, newEmail: string) {
-  const email = assertEmail(newEmail);
-  const existing = await findUserByEmail(email);
-  if (existing && existing["id"] !== userId) throw new AuthError("email_taken");
-  await sql`
-    update public.users
-       set email = ${email}, email_confirmed_at = null, updated_at = now()
-     where id = ${userId}
-  `;
-  await sql`update public.profiles set email = ${email}, updated_at = now() where id = ${userId}`;
+  const { requestPrimaryEmailChange } = await import("./email-safety.server");
+  return requestPrimaryEmailChange(userId, assertEmail(newEmail));
 }
 
 // ---------------------------------------------------------------------------

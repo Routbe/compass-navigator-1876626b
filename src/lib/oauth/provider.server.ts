@@ -673,6 +673,8 @@ export async function exchangeAuthorizationCode(input: {
   }
   await sql`insert into public.oauth_access_tokens(token_hash,client_id,user_id,subject,scopes,family_id,expires_at)
     values(${await sha256Base64Url(accessToken)},${client.clientId},${userId},${subject},${scopes},${familyId},${new Date((now+ttl)*1000).toISOString()})`;
+  const { appendEncryptedUserEvent } = await import("@/lib/ledger/ledger.server");
+  await appendEncryptedUserEvent(userId, { event_type: "app_login", app_name: client.name, scopes, timestamp: new Date().toISOString() });
   return {
     access_token: accessToken,
     id_token: idToken,
