@@ -1,4 +1,8 @@
 # Repository import
+- [ ] Audit tracker/cookie architecture and necessary data collection without adding a cookie banner.
+- [ ] Improve shared keyboard focus, QR names, contrast and consent/Studio accessibility; run automated audit.
+- [ ] Verify irreversible account deletion of credentials/tokens/email assignments and email unsubscribe transport.
+- [ ] Audit remote stock assets and run full compliance regression suite.
 - [ ] Harden Mastodon image requests (DNS, HTTPS, 3-second deadline, 5 MB images and persistent cache).
 - [ ] Enforce booking guest tokens and workspace host authorization without anonymous PII.
 - [ ] Harden go, short-link and OAuth/custom redirect targets with tested trust rules.
