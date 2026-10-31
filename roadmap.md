@@ -1,4 +1,5 @@
 # Repository import
+- [ ] Finish current ledger/RLS/cascade security gaps and QR Smart Labels UI connections while preserving standard OIDC compatibility.
 - [x] Implement asymmetric ledger with local envelopes/recovery and account-safe key reset, disclosure chain/Merkle root, verified-UV passkey guard and honest hybrid JWKS metadata; 1254 tests and typecheck exit 0.
 - [x] Preserve compatible OIDC without blind-token claims; document live-event visibility and unanchored-root limitations.
 - [ ] Apply new Neon migrations 0145–0147 sequentially — blocked by explicit migration approval; 0140–0144 remain immutable.
