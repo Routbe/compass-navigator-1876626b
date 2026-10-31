@@ -163,6 +163,7 @@ export interface PublicAccountEmailChangesRow {
   "freeze_token_hash": string;
   "created_at": string | Date;
   "recovery_until": string | Date;
+  "warning_sent_at": string | Date | null;
   "confirmed_at": string | Date | null;
   "frozen_at": string | Date | null;
 }

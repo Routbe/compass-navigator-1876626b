@@ -1435,6 +1435,14 @@
           "generated": null
         },
         {
+          "name": "warning_sent_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
           "name": "confirmed_at",
           "type": "timestamp with time zone",
           "notNull": false,
