@@ -8,7 +8,7 @@ export const STEP_UP_REQUIRED = "STEP_UP_REQUIRED";
 export const STEP_UP_COOKIE = "rout_stepup";
 
 export type StepUpMethod = "passkey" | "totp" | "email";
-export type StepUpAction = "vault_export" | "account_delete" | "oauth_secret" | "workspace_role" | "account_merge" | "oauth_subject_type";
+export type StepUpAction = "vault_export" | "account_delete" | "oauth_secret" | "workspace_role" | "account_merge" | "oauth_subject_type" | "primary_email_change" | "app_email_reassign" | "app_email_revoke";
 
 export function allowedStepUpMethods(enrolled: { passkey: boolean; totp: boolean }): StepUpMethod[] {
   const strong: StepUpMethod[] = [];
@@ -23,7 +23,9 @@ export function stepUpPayload(userId: string, method: StepUpMethod, verifiedAtSe
 
 /** Parses a payload and checks owner + freshness; returns the method or null. */
 export function checkStepUpPayload(payload: string, userId: string, nowSec: number): StepUpMethod | null {
-  const [v, uid, method, ts] = payload.split(".");
+  const parts = payload.split(".");
+  if (parts.length !== 4) return null;
+  const [v, uid, method, ts] = parts;
   if (v !== "v1" || uid !== userId) return null;
   if (method !== "passkey" && method !== "totp" && method !== "email") return null;
   const at = Number(ts);
