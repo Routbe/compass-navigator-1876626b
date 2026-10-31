@@ -8,3 +8,9 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Import architecture
+- ROUT route files remain in src/routes; imported legacy page components live in src/components/imported-pages. Why: preserve the source experience without a second routing framework.
+- Preserve this project's Vite bootstrap and Cloud-generated integration files; do not import repository metadata or deployment configuration. Why: the destination runtime and project identity must remain intact.
+- Imported ROUT server functions retain their original Neon/Better Auth boundaries until a separately reviewed migration; Cloud provisioning does not connect their tables or sessions. Why: avoid treating an empty managed database as the source's existing accounts.
+- Offline worker registration is disabled until the destination config explicitly supports it. Why: no source service worker artifact is available in this project.
