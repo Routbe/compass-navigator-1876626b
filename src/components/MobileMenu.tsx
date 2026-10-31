@@ -44,13 +44,13 @@ interface NavItem {
   icon: LucideIcon;
 }
 
-function Section({ title, items }: { title: string; items: readonly NavItem[] }) {
+function Section({ title, items, onNavigate }: { title: string; items: readonly NavItem[]; onNavigate: () => void }) {
   const { t } = useI18n();
   return (
     <nav className="border-t border-border pt-3">
       <p className="eyebrow px-3 pb-1 pt-1">{title}</p>
       {items.map(({ to, label, hint, icon: Icon }) => (
-        <Link key={to} to={to} className={itemClass}>
+        <Link key={to} to={to} className={itemClass} onClick={onNavigate}>
           <Icon className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
           <span className="min-w-0">
             {label}
@@ -86,13 +86,12 @@ export function MobileMenu({ className }: { className?: string }) {
           <SheetTitle className="text-left font-display text-xl">{t("menu.platform")}</SheetTitle>
         </SheetHeader>
 
-        <div className="mt-4 flex min-h-0 flex-1 flex-col gap-3" onClick={() => setOpen(false)}>
-          <Section title={t("menu.tools")} items={TOOLS} />
-          <Section title={t("menu.infrastructure")} items={INFRASTRUCTURE} />
+        <div className="mt-4 flex min-h-0 flex-1 flex-col gap-3">
+          <Section title={t("menu.tools")} items={TOOLS} onNavigate={() => setOpen(false)} />
+          <Section title={t("menu.infrastructure")} items={INFRASTRUCTURE} onNavigate={() => setOpen(false)} />
 
           <div
             className="mt-auto flex items-center gap-2 border-t border-border pt-4"
-            onClick={(e) => e.stopPropagation()}
           >
             <LanguageToggle />
             <ThemeToggle />

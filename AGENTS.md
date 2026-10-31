@@ -10,6 +10,9 @@
 <!-- LOVABLE:END -->
 
 ## Import architecture
+- Shared focus and local fonts live in the global design system; decorative icons stay hidden when adjacent controls/text supply the accessible name. Why: consistent keyboard visibility without repetitive screen-reader announcements or third-party font requests.
+- Account purge uses a locked, due-request-guarded Neon transaction with explicit credential/non-FK cleanup and keyed audit pseudonyms; immutable migrations stay untouched. Why: failed/concurrent/cancelled purges must not leave partial credentials or identifying completed requests.
+- Optional notification opt-out uses signed recipient-scoped RFC8058 POST links and central mailer preference enforcement; necessary authentication, security and billing mail are not suppressible. Why: scanners cannot unsubscribe via GET and account security must not be disabled by a notification link.
 - ROUT route files remain in src/routes; imported legacy page components live in src/components/imported-pages. Why: preserve the source experience without a second routing framework.
 - Preserve this project's Vite bootstrap and Cloud-generated integration files; do not import repository metadata or deployment configuration. Why: the destination runtime and project identity must remain intact.
 - Imported ROUT server functions retain their original Neon/Better Auth boundaries until a separately reviewed migration; Cloud provisioning does not connect their tables or sessions. Why: avoid treating an empty managed database as the source's existing accounts.
