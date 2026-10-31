@@ -15,7 +15,7 @@ export async function verifyDisclosureChain(rows: DisclosureEntry[], expectedHea
 }
 /** RFC6962-style domain-separated Merkle root; duplicate no leaves. */
 export async function merkleRoot(hashes: string[]): Promise<string> {
-  const digest = async (bytes: Uint8Array) => Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)), (b) => b.toString(16).padStart(2, "0")).join("");
+  const digest = async (bytes: Uint8Array) => Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new Uint8Array(bytes))), (b) => b.toString(16).padStart(2, "0")).join("");
   const bytes = (s: string) => {
     if (!/^[a-f0-9]{64}$/.test(s)) throw new Error("Invalid leaf hash");
     return Uint8Array.from(s.match(/../g) ?? [], (h) => parseInt(h, 16));

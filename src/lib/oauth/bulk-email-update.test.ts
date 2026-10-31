@@ -17,6 +17,7 @@ vi.mock("@tanstack/react-start", () => ({
   },
 }));
 vi.mock("@/lib/auth/middleware", () => ({ requireAuth: {} }));
+vi.mock("@/lib/auth/step-up-guard.server", () => ({ requirePasskeyStepUp: vi.fn().mockResolvedValue("passkey") }));
 vi.mock("@/lib/site-mail.server", () => ({ later: (task: () => unknown) => task() }));
 vi.mock("@/lib/auth/email-sync-webhook.server", () => ({
   dispatchEmailUpdated: vi.fn(async (_user: string, changes: unknown[]) => { state.notifications.push(...changes); }),

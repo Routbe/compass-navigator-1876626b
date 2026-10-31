@@ -15,8 +15,8 @@ export async function publicKeyId(publicKey: JsonWebKey) {
 }
 
 async function wrappingKey(material: Uint8Array, salt: Uint8Array) {
-  const base = await crypto.subtle.importKey("raw", material, "HKDF", false, ["deriveKey"]);
-  return crypto.subtle.deriveKey({ name: "HKDF", hash: "SHA-256", salt, info: encode.encode(`${LEDGER_CONTEXT}:private-key`) }, base,
+  const base = await crypto.subtle.importKey("raw", new Uint8Array(material), "HKDF", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name: "HKDF", hash: "SHA-256", salt: new Uint8Array(salt), info: encode.encode(`${LEDGER_CONTEXT}:private-key`) }, base,
     { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
 }
 

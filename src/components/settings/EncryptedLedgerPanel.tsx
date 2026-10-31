@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { getLedgerKeys, listEncryptedLedger, saveLedgerKeys } from "@/lib/ledger/ledger.functions";
 import { getDisclosureAudit } from "@/lib/security/audit-verifier.functions";
 import type { LedgerKeys, PrivateEnvelope } from "@/lib/ledger/crypto";
+import type { LedgerPublicKey } from "@/lib/ledger/ledger.functions";
 
 type KeyRow = { key_id: string; encrypted_ledger_private_key: (PrivateEnvelope & { credentialId?: string })[]; retired_at: string | null };
 type LogRow = { id: string; key_id: string; encrypted_payload: string; created_at: string };
@@ -44,7 +45,7 @@ export function EncryptedLedgerPanel() {
   async function activate() {
     if (!pending || !acknowledged) return;
     const envelopes = pending.envelopes.map((e) => e.source === "prf" ? { ...e, credentialId: prfCredential ?? undefined } : e);
-    await save({ data: { publicKey: pending.publicKey as Parameters<typeof save>[0]["data"]["publicKey"], envelopes, expectedKeyId: active?.key_id ?? null } });
+    await save({ data: { publicKey: pending.publicKey as LedgerPublicKey, envelopes, expectedKeyId: active?.key_id ?? null } });
     setClientKey({ id: pending.keyId, key: pending.privateKey }); setPending(null); setRecovery(""); setDecoded({}); await refresh();
   }
   async function unlock(prf: boolean) {
