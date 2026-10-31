@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireAuth } from "@/lib/auth/middleware";
 
-const envelope = z.object({ v: z.literal(1), source: z.enum(["recovery", "prf"]), salt: z.string().max(100), iv: z.string().max(40), ciphertext: z.string().min(100).max(12000) }).strict();
+const envelope = z.object({ v: z.literal(1), source: z.enum(["recovery", "prf"]), salt: z.string().max(100), iv: z.string().max(40), ciphertext: z.string().min(100).max(12000), credentialId: z.string().max(2048).optional() }).strict();
 const publicKey = z.object({ kty: z.literal("RSA"), n: z.string().min(512).max(1024), e: z.literal("AQAB"), alg: z.literal("RSA-OAEP-256").optional(), ext: z.boolean().optional(), key_ops: z.array(z.literal("encrypt")).optional() }).strict();
 
 export const getLedgerKeys = createServerFn({ method: "GET" }).middleware([requireAuth]).handler(async ({ context }) => {

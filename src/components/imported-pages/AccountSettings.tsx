@@ -33,6 +33,9 @@ import { DeleteAccountPanel } from "@/components/settings/DeleteAccountPanel";
 import { DomainClaimPanel } from "@/components/settings/DomainClaimPanel";
 import { IdentityLinksPanel } from "@/components/settings/IdentityLinksPanel";
 import { CustomDomainPanel } from "@/components/dashboard/CustomDomainPanel";
+import { EncryptedLedgerPanel } from "@/components/settings/EncryptedLedgerPanel";
+import { startPrimaryEmailChange } from "@/lib/auth/email-safety.functions";
+import { withStepUp } from "@/components/auth/StepUpDialog";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -94,6 +97,7 @@ export default function AccountSettings() {
   const [email, setEmail] = useState("");
   const [emailCurrentPassword, setEmailCurrentPassword] = useState("");
   const [busyEmail, setBusyEmail] = useState(false);
+  const startEmailChange = useServerFn(startPrimaryEmailChange);
 
   const fetchPasswordState = useServerFn(getPasswordState);
   const askSecurityCode = useServerFn(requestSecurityCode);
@@ -170,7 +174,15 @@ export default function AccountSettings() {
   /** Credentials live in Neon Auth; send the member to the secure account area. */
   const openNeonAccount = () => nav("/account/settings");
 
-  const changeEmail = openNeonAccount;
+  const changeEmail = async () => {
+    setBusyEmail(true);
+    try {
+      await withStepUp(() => startEmailChange({ data: { email } }));
+      toast.success("Bevestigingsmail verstuurd. Je oude adres blijft 48 uur beschikbaar voor noodherstel.");
+      setEmail("");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Wijziging geblokkeerd."); }
+    finally { setBusyEmail(false); }
+  };
 
   const enable2fa = () => {
     setMfaUri(null);
@@ -435,21 +447,14 @@ export default function AccountSettings() {
             </Badge>
             <Input
               value={email}
+              aria-label="Nieuw primair e-mailadres"
               type="email"
               placeholder="new@email.com"
               maxLength={255}
               onChange={(e) => setEmail(e.target.value)}
               className="input-field h-11 rounded-xl"
             />
-            <Input
-              value={emailCurrentPassword}
-              type="password"
-              placeholder="Current password"
-              maxLength={72}
-              onChange={(e) => setEmailCurrentPassword(e.target.value)}
-              className="input-field h-11 rounded-xl"
-            />
-            <Button onClick={changeEmail} disabled={busyEmail} className="h-11 w-full sm:w-auto">
+            <Button onClick={changeEmail} disabled={busyEmail || !email} className="h-11 w-full sm:w-auto">
               E-mailadres wijzigen
             </Button>
           </section>
@@ -528,6 +533,7 @@ export default function AccountSettings() {
 
         {/* Tab 4 — Account status & control */}
         <TabsContent value="status" className="space-y-4">
+          <EncryptedLedgerPanel />
           <FreezeAccountPanel />
 
           <MergeAccountWizard />
