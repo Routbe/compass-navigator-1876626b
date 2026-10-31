@@ -14,3 +14,5 @@
 - Preserve this project's Vite bootstrap and Cloud-generated integration files; do not import repository metadata or deployment configuration. Why: the destination runtime and project identity must remain intact.
 - Imported ROUT server functions retain their original Neon/Better Auth boundaries until a separately reviewed migration; Cloud provisioning does not connect their tables or sessions. Why: avoid treating an empty managed database as the source's existing accounts.
 - Offline worker registration is disabled until the destination config explicitly supports it. Why: no source service worker artifact is available in this project.
+- Source-based regression tests follow relocated imported-page paths and browser mocks run only when window exists. Why: the same suite supports server-only and browser test environments.
+- Neon migration verification compares immutable file checksums and the replay snapshot without overwriting it with live differences. Why: remaining grant drift and role bypass flags must remain visible for separate review.
