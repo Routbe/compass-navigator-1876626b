@@ -2,6 +2,7 @@ import { glassSurfaceStyle, resolveComponentDesign, resolveScopedTokens, scopeOf
 import { LocaleDropdown } from "@/components/LocaleDropdown";
 import { profileSurface } from "@/lib/profile-surface";
 import { profileImageSrc } from "@/lib/image-proxy-rules";
+import { mastodonAvatarSrc } from "@/lib/mastodon-avatar";
 import { socialHandleKey } from "@/lib/social-block-rules";
 import { useTranslation } from "react-i18next";
 import { ProfileYouTubeCard } from "@/components/profile/YouTubeCard";
@@ -143,7 +144,8 @@ export function ProfileView({
   };
   const prefs = parseDisplayPrefs(profile.display_prefs);
   const t = profileSurface(themeOf(profile.theme), prefs.canvasColor ?? ((prefs.backgroundCustom || prefs.customDesign) && prefs.wallpaperType === "solid" ? prefs.wallpaperColor : null));
-  const avatarSrc = profileImageSrc(profile.avatar_url);
+  const mastodonAccount = profile.blocks.find(block => block.kind === "mastodon" && block.value.trim());
+  const avatarSrc = profileImageSrc(profile.avatar_url) ?? mastodonAvatarSrc(mastodonAccount?.value);
   const layers = normalizeDesignLayers(prefs.designLayers);
   const lv = (id: SectionId) => sectionVisible(layers, id);
   const sectionStyle = (id: SectionId) => ({ order: sectionOrder(layers, id), display: lv(id) ? undefined : "none" });
@@ -284,7 +286,7 @@ export function ProfileView({
   const mainRef = useRef<HTMLElement | null>(null);
   const stopTestRef = useRef<(() => void) | null>(null);
 
-  useProfileFavicon(profile.favicon_url ?? profile.avatar_url);
+  useProfileFavicon(profileImageSrc(profile.favicon_url) ?? avatarSrc);
 
   // Entree-effect: exact één keer bij het betreden van het profiel, en nooit
   // wanneer het besturingssysteem minder beweging vraagt. Het effect speelt

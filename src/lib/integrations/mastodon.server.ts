@@ -6,6 +6,42 @@ export const IMAGE_TIMEOUT_MS = 3000;
 export const IMAGE_CACHE_SECONDS = 86400;
 const TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const pending = new Map<string, Promise<Response>>();
+const handles = new Map<string, { image: string; expires: number }>();
+
+/** Cache account lookup as well as media; never expose provider URLs to browsers. */
+export async function cachedMastodonAvatar(handle: string): Promise<Response> {
+  const lookup = mastodonHandleUrl(handle);
+  if (!storageConfigured("internal")) return new Response("Image cache unavailable", { status: 503 });
+  const key = lookup.href;
+  const existing = handles.get(key);
+  if (existing && existing.expires > Date.now()) return cachedRemoteImage(existing.image);
+  const signal = AbortSignal.timeout(IMAGE_TIMEOUT_MS);
+  const safe = await validateOutboundUrl(lookup.href, signal);
+  const response = await fetch(safe, { redirect: "error", signal, headers: { accept: "application/json" } });
+  if (!response.ok) return new Response("Avatar unavailable", { status: 502 });
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("Empty account response");
+  let text = ""; let size = 0;
+  const decoder = new TextDecoder();
+  try {
+    while (true) {
+      const chunk = await reader.read(); if (chunk.done) break;
+      size += chunk.value.byteLength;
+      if (size > 128 * 1024) { await reader.cancel(); throw new Error("Account response too large"); }
+      text += decoder.decode(chunk.value, { stream: true });
+    }
+    text += decoder.decode();
+  } finally { reader.releaseLock(); }
+  const account = JSON.parse(text) as { avatar_static?: unknown; avatar?: unknown };
+  const image = typeof account.avatar_static === "string" ? account.avatar_static : account.avatar;
+  if (typeof image !== "string") throw new Error("Missing avatar");
+  const result = await cachedRemoteImage(image);
+  if (result.ok) {
+    if (handles.size >= 1000) { const first = handles.keys().next().value; if (first) handles.delete(first); }
+    handles.set(key, { image, expires: Date.now() + IMAGE_CACHE_SECONDS * 1000 });
+  }
+  return result;
+}
 
 export function mastodonHandleUrl(handle: string): URL {
   const match = /^@?([a-zA-Z0-9_.-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/.exec(handle);

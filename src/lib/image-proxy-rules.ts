@@ -61,7 +61,7 @@ export function proxied(url: string | null | undefined): string | null {
 /** Stored avatars can be first-party paths; never send these to the remote proxy. */
 export function profileImageSrc(url: string | null | undefined): string | null {
   if (!url) return null;
-  if (url.startsWith("/api/public/avatar?") || url.startsWith("/api/public/proxy-image?")) return url;
+  if (url.startsWith("/api/public/avatar?") || url.startsWith("/api/public/proxy-image?") || url.startsWith("/api/public/integrations/mastodon/avatar?")) return url;
   try {
     const parsed = new URL(url);
     if (parsed.origin === "https://rout.be" && (parsed.pathname === "/api/public/avatar" || parsed.pathname === "/api/public/proxy-image")) return `${parsed.pathname}${parsed.search}`;
