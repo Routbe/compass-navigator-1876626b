@@ -1,12 +1,15 @@
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { RoutLogo } from "@/components/RoutLogo";
-import { verifyGoLink } from "@/lib/go-link.functions";
+import { resolveGoDestination } from "@/lib/go-link.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { validatedRedirectTarget } from "@/lib/security/redirect-target";
 
-type GoSearch = { i?: string; a?: string; w?: string; s?: string };
+type GoSearch = { i?: string; a?: string; w?: string; to?: string; s?: string };
 
 /** Pick the right destination from the user agent, entirely client-side. */
 function pickTarget(ua: string, s: GoSearch): string | undefined {
+  if (s.to) return s.to;
   if (/iphone|ipad|ipod/i.test(ua) || (/mac/i.test(ua) && "ontouchend" in document)) {
     return s.i ?? s.w ?? s.a;
   }
@@ -18,27 +21,19 @@ function GoPage() {
   const search = useSearch({ from: "/go" });
   const [target, setTarget] = useState<string | undefined>();
   const [needsConfirm, setNeedsConfirm] = useState(false);
+  const resolve = useServerFn(resolveGoDestination);
 
   useEffect(() => {
     const s = search as GoSearch;
-    const to = pickTarget(navigator.userAgent, s);
-    setTarget(to);
+    const to = validatedRedirectTarget(pickTarget(navigator.userAgent, s)) ?? undefined;
+    setTarget(undefined);
     if (!to) return;
-    let safe = false;
-    try {
-      const p = new URL(to).protocol;
-      safe = p === "https:" || p === "http:";
-    } catch {
-      safe = false;
-    }
-    if (!safe) {
-      setTarget(undefined);
-      return;
-    }
-    verifyGoLink({ data: { i: s.i, a: s.a, w: s.w, s: s.s } })
-      .then((r) => (r.valid ? window.location.replace(to) : setNeedsConfirm(true)))
-      .catch(() => setNeedsConfirm(true));
-  }, [search]);
+    let cancelled = false;
+    resolve({ data: { i: s.i, a: s.a, w: s.w, to: s.to, s: s.s, selected: to } })
+      .then(r => { if (!cancelled && r.destination) window.location.replace(r.destination); })
+      .catch(() => { /* fail closed: no outbound link before verification */ });
+    return () => { cancelled = true; };
+  }, [search, resolve]);
 
   if (needsConfirm && target) {
     let host = target;
