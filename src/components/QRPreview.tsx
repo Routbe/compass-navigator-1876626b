@@ -104,11 +104,13 @@ function InstantQR({
   fgColor,
   visible,
   matrix,
+  label,
 }: {
   value: string;
   fgColor: string;
   visible: boolean;
   matrix: { count: number; path: string };
+  label: string;
 }) {
   const { count, path } = matrix;
   void value;
@@ -126,7 +128,7 @@ function InstantQR({
           shapeRendering="crispEdges"
           style={{ width: "100%", height: "100%", display: "block" }}
           role="img"
-          aria-label="QR code preview"
+          aria-label={label}
         >
           <path d={path} fill={fgColor} />
         </svg>
@@ -1196,6 +1198,7 @@ export function QRPreview({
                   fgColor={fgColor}
                   visible={!qrReady && !artisticPreview}
                   matrix={matrix}
+                  label={`QR code voor profiel ${profileName || richValues?.name || richValues?.handle || filename}`}
                 />
               )}
               {qrError && <QRErrorState onRetry={retryRender} />}
@@ -1233,6 +1236,7 @@ export function QRPreview({
                 fgColor={fgColor}
                 visible={!qrReady && !artisticPreview}
                 matrix={matrix}
+                label={`QR code voor profiel ${profileName || richValues?.name || richValues?.handle || filename}`}
               />
             )}
             {qrError && <QRErrorState onRetry={retryRender} />}

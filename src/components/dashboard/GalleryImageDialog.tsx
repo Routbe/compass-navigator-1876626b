@@ -164,7 +164,7 @@ export function GalleryImageDialog({
           <TabsContent value="url" className="space-y-2 pt-3">
             <Input
               className="input-field h-9 rounded-xl"
-              placeholder="https://images.unsplash.com/photo-…"
+              placeholder="https://…"
               value={url}
               maxLength={2000}
               onChange={(e) => {

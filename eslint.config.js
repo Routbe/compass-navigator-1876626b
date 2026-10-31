@@ -23,6 +23,10 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       ...jsxA11y.configs.recommended.rules,
+      "jsx-a11y/label-has-associated-control": ["error", {
+        controlComponents: ["Input", "Textarea", "Checkbox", "Switch", "SelectTrigger"],
+        depth: 3,
+      }],
       "no-restricted-imports": [
         "error",
         {
