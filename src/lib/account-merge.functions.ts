@@ -7,8 +7,8 @@ import { requireAuth } from "@/lib/auth/middleware";
 export const startAccountMerge = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .handler(async ({ context }) => {
-    const { ensureStepUpSession } = await import("@/lib/auth/step-up.server");
-    await ensureStepUpSession(context.userId, "account_merge");
+    const { requirePasskeyStepUp } = await import("@/lib/auth/step-up-guard.server");
+    await requirePasskeyStepUp(context.userId, "account_merge");
     const { createMergeTicket } = await import("./account-merge.server");
     const ticket = await createMergeTicket(context.userId);
     return { ok: true as const, pin: ticket.pin, qrPayload: `rout-merge:${ticket.token}`, expiresAt: ticket.expiresAt };
@@ -27,6 +27,8 @@ export const previewAccountMerge = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .inputValidator((input: CodeInput) => codeOf(input))
   .handler(async ({ data, context }) => {
+    const { requirePasskeyStepUp } = await import("@/lib/auth/step-up-guard.server");
+    await requirePasskeyStepUp(context.userId, "account_merge");
     const { previewMerge } = await import("./account-merge.server");
     return previewMerge({ secondaryUserId: context.userId, ...data, request: getRequest() });
   });
@@ -50,8 +52,8 @@ export const redeemAccountMerge = createServerFn({ method: "POST" })
     return { ...codeOf(d), code: d.code, keepHandle: d.keepHandle, keepDesign: d.keepDesign };
   })
   .handler(async ({ data, context }) => {
-    const { ensureStepUpSession } = await import("@/lib/auth/step-up.server");
-    await ensureStepUpSession(context.userId, "account_merge");
+    const { requirePasskeyStepUp } = await import("@/lib/auth/step-up-guard.server");
+    await requirePasskeyStepUp(context.userId, "account_merge");
     const { redeemMergeTicket } = await import("./account-merge.server");
     return redeemMergeTicket({ secondaryUserId: context.userId, ...data });
   });

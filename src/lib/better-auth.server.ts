@@ -298,6 +298,20 @@ export function createRoutAuth(request?: Request) {
       rpName: "ROUT",
       origin: origin ?? canonicalAppUrl(),
       schema: { passkey: { modelName: "neon_auth.passkey" } },
+      authentication: {
+        afterVerification: async ({ verification, clientData }: { verification: { authenticationInfo: { userVerified: boolean } }; clientData: { id: string } }) => {
+          // A fresh password/email session is never evidence of biometric verification.
+          if (!verification.authenticationInfo.userVerified) return;
+          const { sql } = await import("@/lib/neon");
+          const rows = await sql`select u.id from public.users u join neon_auth.passkey p
+            on p."userId"::text = coalesce(u.auth_user_id::text, u.user_metadata->>'neon_auth_id')
+            where p."credentialID" = ${clientData.id} limit 1`;
+          const userId = rows[0]?.["id"];
+          if (typeof userId !== "string") return;
+          const { grantStepUp } = await import("@/lib/auth/step-up.server");
+          await grantStepUp(userId, "passkey");
+        },
+      },
     } as never),
   );
 
