@@ -1,6 +1,6 @@
 # Repository import
 - [x] Current directive: wire three real QR suggestion pills (browser verified), route Mastodon avatar fallback via secure cache, and add explicit merge/challenge deletion with per-table isolation tests; typecheck exit 0.
-- [ ] Apply reviewed 0149 strict RLS/grant migration — awaits explicit approval of exact SQL; live owner connection will still bypass RLS until replaced with reviewed non-owner/service access.
+- [x] Apply approved 0149 as one Neon transaction; readback confirms rout_app NOBYPASSRLS, Mastodon RLS enabled and all eight grants aligned; 1271 tests green, tsgo exit 0. Full live comparison retains 14 earlier schema differences, zero grant differences.
 - [x] Harden ledger upload envelopes, prove non-bypass owner isolation/cascades, add due-purge audit-trigger fix, and connect QR Smart Labels to preview/save/dynamic label; 1263 tests and manual typecheck pass.
 - [ ] Apply purge audit fix 0148 — blocked by explicit live-migration approval; isolated trigger/purge tests pass.
 - [x] Implement asymmetric ledger with local envelopes/recovery and account-safe key reset, disclosure chain/Merkle root, verified-UV passkey guard and honest hybrid JWKS metadata; 1254 tests and typecheck exit 0.

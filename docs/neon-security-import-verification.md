@@ -5,6 +5,7 @@ Migrations 0140–0144 applied individually after explicit approval; all ledger 
 All booking tokens are present, unique and 64-character hex strings. Pairwise backfill has no eligible null sector IDs.
 
 ## Live schema comparison
+Historical comparison below predates 0149. On 2026-10-31, approved 0149 reconciled all eight grants to the updated replay, disabled rout_app bypass and enabled Mastodon RLS. The active neondb_owner connection still bypasses RLS. Current full comparison has 14 missing/different schema objects from unapplied 0145–0148 and no grant differences; see strict-rls-final-verification.md.
 - ~ grants public.account_deletion_audit differ
 - ~ grants public.account_deletions differ
 - ~ grants public.identity_disclosure_logs differ
