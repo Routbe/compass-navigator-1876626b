@@ -19696,6 +19696,12 @@
     },
     {
       "schema": "public",
+      "name": "email_freeze_owner",
+      "args": "token_hash text",
+      "def": "CREATE OR REPLACE FUNCTION public.email_freeze_owner(token_hash text)\n RETURNS uuid\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select user_id from public.account_email_changes where freeze_token_hash=token_hash and recovery_until>now() and frozen_at is null limit 1\n$function$"
+    },
+    {
+      "schema": "public",
       "name": "enforce_short_link_limits",
       "args": "",
       "def": "CREATE OR REPLACE FUNCTION public.enforce_short_link_limits()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  is_verified boolean;\n  per_hour int;\n  max_total int;\n  recent int;\n  total int;\nbegin\n  if new.user_id is null then\n    raise exception 'RATE_LIMIT_SHORT_LINKS: short links need an owner';\n  end if;\n\n  select coalesce(p.verified, false) or coalesce(p.is_paid, false)\n           or coalesce(p.is_early_believer, false)\n    into is_verified\n    from public.profiles p\n   where p.id = new.user_id;\n\n  if coalesce(is_verified, false) then\n    per_hour := 60;\n    max_total := 1000;\n  else\n    per_hour := 10;\n    max_total := 25;\n  end if;\n\n  select count(*) into recent\n    from public.tracked_qrs q\n   where q.user_id = new.user_id\n     and q.created_at > now() - interval '1 hour';\n\n  if recent >= per_hour then\n    raise exception 'RATE_LIMIT_SHORT_LINKS: too many new short links in the last hour';\n  end if;\n\n  select count(*) into total\n    from public.tracked_qrs q\n   where q.user_id = new.user_id;\n\n  if total >= max_total then\n    raise exception 'RATE_LIMIT_SHORT_LINKS: short link quota reached';\n  end if;\n\n  return new;\nend;\n$function$"
