@@ -31,7 +31,10 @@ Review and approve each new Neon migration in full before applying sequentially.
 - Live ledger tables are absent and Mastodon registration RLS remains disabled. Role changes are deferred until service/auth/cron policies and a non-owner runtime connection are reviewed. The enforcement script now only reports blockers, never changes privileges.
 
 ## Verification results
-- Full Vitest suite: 209 files, 1,254 tests passed.
+- Full Vitest suite: 213 files, 1,263 tests passed after the Phase 1 follow-up.
 - Manual `bunx tsgo --noEmit`: exit 0 after the automatic checker timed out.
 - Migration replay on PGlite: passes; schema snapshot/types regenerated only from immutable migration replay.
 - Browser: freeze and confirmation pages render without page errors; absent tokens disable actions; Studio correctly redirects signed-out users to sign-in. Authenticated flows remain unverified.
+- Isolated real Postgres RLS: a NOBYPASSRLS non-owner role sees only its ledger, foreign writes fail, absent owner context returns no rows, and deleting one user cascades keys/ciphertext while preserving another user.
+- Hard-purge tests now install the real audit refusal function from migration 0148; ordinary audit deletion and wrong-owner purge flags fail, due purge succeeds, cancelled purge retains credentials.
+- QR browser flow generated a real AI proposal, edited the label/CTA and applied it; the displayed QR caption and filename updated without page errors. Save config and dynamic-label inputs are connected; authenticated saving/dynamic creation remains unverified.

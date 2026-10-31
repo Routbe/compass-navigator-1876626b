@@ -1,5 +1,6 @@
 # Repository import
-- [ ] Finish current ledger/RLS/cascade security gaps and QR Smart Labels UI connections while preserving standard OIDC compatibility.
+- [x] Harden ledger upload envelopes, prove non-bypass owner isolation/cascades, add due-purge audit-trigger fix, and connect QR Smart Labels to preview/save/dynamic label; 1263 tests and manual typecheck pass.
+- [ ] Apply purge audit fix 0148 — blocked by explicit live-migration approval; isolated trigger/purge tests pass.
 - [x] Implement asymmetric ledger with local envelopes/recovery and account-safe key reset, disclosure chain/Merkle root, verified-UV passkey guard and honest hybrid JWKS metadata; 1254 tests and typecheck exit 0.
 - [x] Preserve compatible OIDC without blind-token claims; document live-event visibility and unanchored-root limitations.
 - [ ] Apply new Neon migrations 0145–0147 sequentially — blocked by explicit migration approval; 0140–0144 remain immutable.
@@ -22,7 +23,7 @@
 - [ ] Verify profile hub saving and editor arrangement in a real ROUT preview session — blocked by sign-in; browser redirects to /auth/sign-in.
 - [x] Apply Neon migrations 0140–0144 individually after explicit confirmation; verify all source checksums and booking tokens.
 - [x] Compare live schema with migration replay snapshot; eight grant differences documented in docs/neon-security-import-verification.md.
-- [ ] Align remaining grants and review BYPASSRLS — blocked by separate security review/approval; original migrations preserved.
+- [ ] Remove effective runtime BYPASSRLS — live connection is neondb_owner; blocked by non-owner runtime connection, reviewed auth/public/cron policies and explicit role-change approval; enforcement preflight now refuses misleading role-only fixes.
 - [x] Start Links and Componenten closed; place customization directly under Knopvorm and Typografie.
 - [x] Move Steam/Last.fm into Inhoud > Live status and card effects into folder/card settings.
 - [ ] Restore email, payments, and storage — blocked by original service credentials.
