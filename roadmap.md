@@ -1,4 +1,5 @@
 # Repository import
+- [ ] Finish current request: review/apply pending Neon security changes in order, fix remaining profile/avatar and accessibility defects, verify recovery/deletion, and rerun regression tests; external credentials and a real ROUT test session remain required where applicable.
 - [x] Current directive: wire three real QR suggestion pills (browser verified), route Mastodon avatar fallback via secure cache, and add explicit merge/challenge deletion with per-table isolation tests; typecheck exit 0.
 - [x] Apply approved 0149 as one Neon transaction; readback confirms rout_app NOBYPASSRLS, Mastodon RLS enabled and all eight grants aligned; 1271 tests green, tsgo exit 0. Full live comparison retains 14 earlier schema differences, zero grant differences.
 - [x] Harden ledger upload envelopes, prove non-bypass owner isolation/cascades, add due-purge audit-trigger fix, and connect QR Smart Labels to preview/save/dynamic label; 1263 tests and manual typecheck pass.
