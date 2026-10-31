@@ -15,6 +15,15 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/console/apps/")({
+  head: () => ({ meta: [
+    { title: "Je apps — ROUT Developer Console" },
+    { name: "description", content: "Beheer jouw apps en hun Login met ROUT-instellingen." },
+    { property: "og:title", content: "Je apps — ROUT Developer Console" },
+    { property: "og:description", content: "Beheer jouw apps en hun Login met ROUT-instellingen." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex, nofollow" },
+  ] }),
   component: AppsOverview,
 });
 
@@ -48,14 +57,16 @@ function AppsOverview() {
                   <p className="truncate font-medium">{app.name}</p>
                   <p className="truncate font-mono text-xs text-muted-foreground">{app.clientId}</p>
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setToDelete(app)}
                   className="relative z-10 rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive"
                   aria-label={`Verwijder ${app.name}`}
                 >
                   <Trash2 className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5">

@@ -1133,6 +1133,7 @@ export function VerificationPanel() {
                     type="button"
                     role="combobox"
                     aria-expanded={countryOpen}
+                    aria-controls="billing-country-options"
                     className="input-field flex h-9 w-full items-center justify-between gap-2 rounded-xl bg-background px-2 text-xs"
                     style={countryOpen ? { borderColor: ACCENT, color: ACCENT } : undefined}
                   >
@@ -1147,7 +1148,7 @@ export function VerificationPanel() {
                 <PopoverContent className="w-[min(20rem,90vw)] p-0" align="start">
                   <Command>
                     <CommandInput placeholder={t("checkout.search_country_placeholder")} />
-                    <CommandList>
+                    <CommandList id="billing-country-options">
                       <CommandEmpty>—</CommandEmpty>
                       <CommandGroup>
                         {countryOptions.map((c) => {

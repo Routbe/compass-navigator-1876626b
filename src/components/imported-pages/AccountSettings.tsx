@@ -364,9 +364,9 @@ export default function AccountSettings() {
               <UserIcon className="h-4 w-4" /> Profile
             </h2>
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              <p className="mb-1 block text-xs font-medium text-muted-foreground">
                 Profielfoto
-              </label>
+              </p>
               <AvatarUpload
                 value={avatarUrl}
                 name={displayName || user.email}
@@ -375,10 +375,11 @@ export default function AccountSettings() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label htmlFor="account-display-name" className="mb-1 block text-xs font-medium text-muted-foreground">
                 Weergavenaam
               </label>
               <Input
+                id="account-display-name"
                 value={displayName}
                 placeholder="Jona Zeno"
                 maxLength={80}

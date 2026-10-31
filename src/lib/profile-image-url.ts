@@ -1,7 +1,17 @@
 import { z } from "zod";
+import { mastodonAvatarSrc } from "./mastodon-avatar";
 
-/** First-party avatar uploads are the only relative image address accepted. */
+/** Accept only the two exact first-party avatar handlers, not arbitrary app paths. */
 export function isFirstPartyAvatarUrl(value: string): boolean {
+  if (value.startsWith("/api/public/integrations/mastodon/avatar?")) {
+    try {
+      const url = new URL(value, "https://rout.be");
+      const entries = [...url.searchParams.entries()];
+      const handle = entries[0]?.[1];
+      return !url.hash && entries.length === 1 && entries[0]?.[0] === "handle" &&
+        typeof handle === "string" && mastodonAvatarSrc(handle) === value;
+    } catch { return false; }
+  }
   if (!value.startsWith("/api/public/avatar?")) return false;
   try {
     const url = new URL(value, "https://rout.be");
