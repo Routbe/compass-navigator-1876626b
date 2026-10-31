@@ -60,9 +60,13 @@ export function WalletDialog({ open, onOpenChange, kind, id }: Props) {
             <Button type="button" variant="outline" disabled={!state.apple || busy} onClick={() => void addApple()}>
               {t("wallet.apple")}
             </Button>
-            <Button type="button" variant="outline" disabled={!state.google} asChild={state.google}>
-              {state.google ? <a href={href("google")} target="_blank" rel="noopener noreferrer">{t("wallet.google")}</a> : <span>{t("wallet.google")}</span>}
-            </Button>
+            {state.google ? (
+              <Button variant="outline" asChild>
+                <a href={href("google")} target="_blank" rel="noopener noreferrer">{t("wallet.google")}</a>
+              </Button>
+            ) : (
+              <Button type="button" variant="outline" disabled>{t("wallet.google")}</Button>
+            )}
             {(!state.apple || !state.google) && <p className="text-xs text-muted-foreground">{t("wallet.partly")}</p>}
           </div>
         )}
