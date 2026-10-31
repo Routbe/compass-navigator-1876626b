@@ -155,7 +155,7 @@ export function ProfileThemePicker({
           <StatusDesignSettings prefs={prefs} setPref={setPref} avatarUrl={avatarUrl} theme={themeOf(theme)} />
 
           <div className="space-y-2 border-t border-border pt-4">
-            <label className="input-label">Favicon (optioneel)</label>
+            <p className="input-label">Favicon (optioneel)</p>
             <FaviconUploader value={faviconUrl} onChange={onFaviconUrlChange} />
           </div>
         </AccordionContent>

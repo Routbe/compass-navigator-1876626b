@@ -27,6 +27,13 @@ describe("upload URL accepted by both profile save paths", () => {
         expect(validate({ username: "anna", avatarUrl: url })).toHaveProperty("__invalid");
       }
     });
+    it(`${space} saves only the canonical first-party Mastodon avatar handler`, () => {
+      const url = "/api/public/integrations/mastodon/avatar?handle=%40alice%40mastodon.social";
+      expect(validate({ username: "anna", avatarUrl: url }).avatarUrl).toBe(url);
+      for (const bad of [url + "&extra=1", url + "#fragment", "/api/public/integrations/mastodon/avatar?handle=localhost", "/api/public/integrations/mastodon/avatar?handle=https%3A%2F%2Fmastodon.social%2F%40alice"]) {
+        expect(validate({ username: "anna", avatarUrl: bad })).toHaveProperty("__invalid");
+      }
+    });
     it(`${space} accepts nested display prefs (qrSettings)`, () => {
       const r = validate({ username: "anna", displayPrefs: { qrSettings: { fg: "#000", logo: { size: 0.2 } } } } as never);
       expect(r).not.toHaveProperty("__invalid");
