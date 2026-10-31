@@ -255,6 +255,17 @@ html {
 }
 
 @utility preview-sheet {
+  /* A print-white preview needs light text roles even inside the dark shell. */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
+  --muted: 40 20% 93%;
+  --muted-foreground: 30 6% 38%;
+  --primary: 0 0% 10%;
+  --primary-foreground: 0 0% 100%;
+  --highlight: 150 24% 92%;
+  --highlight-foreground: 155 30% 20%;
   background-color: #ffffff;
   color: #1c1917;
 

@@ -183,9 +183,8 @@ function RootComponent() {
 
   useEffect(() => {
     // Offline registration is disabled until a service worker is configured here.
-    // `?ref=` op elke entree onthouden (30 dagen), zodat de attributie
-    // overleeft terwijl de bezoeker rondkijkt vóór registratie.
-    void import("@/lib/referral").then((m) => m.captureReferralFromUrl());
+    // Remove historical tracking storage; any new attribution stays in memory.
+    void import("@/lib/referral").then((m) => { m.clearReferrer(); m.captureReferralFromUrl(); });
     // Preview/dev: a chosen admin shell opens the portal from the home page.
     if (!isModeFixed() && window.location.pathname === "/" && detectShellMode() === "admin") {
       void router.navigate({ to: "/admin" } as never);

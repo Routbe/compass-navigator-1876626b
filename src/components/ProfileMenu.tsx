@@ -82,6 +82,7 @@ export function ProfileMenu() {
   if (loading) {
     return (
       <div
+        role="status"
         aria-label="Checking your session"
         aria-busy="true"
         className="flex h-9 items-center gap-2 rounded-xl border border-border pl-1 pr-2"
