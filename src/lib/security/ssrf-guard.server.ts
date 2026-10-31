@@ -15,6 +15,7 @@ import { assertPublicHost } from "@/lib/safe-fetch.server";
 export const OUTBOUND_TIMEOUT_MS = 5000;
 
 export class SsrfBlockedError extends Error {
+  readonly status = 400;
   constructor(message = "Invalid or restricted host") {
     super(message);
     this.name = "SsrfBlockedError";
@@ -27,14 +28,14 @@ const DOMAIN_RE = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z
  * Valideert een uitgaande URL. Gooit `SsrfBlockedError` bij elke afwijking.
  * Retourneert de genormaliseerde URL bij succes.
  */
-export async function validateOutboundUrl(targetUrl: string): Promise<URL> {
+export async function validateOutboundUrl(targetUrl: string, signal?: AbortSignal): Promise<URL> {
   let url: URL;
   try {
     url = new URL(targetUrl);
   } catch {
     throw new SsrfBlockedError("Invalid URL");
   }
-  if (url.protocol !== "https:") {
+  if (url.protocol !== "https:" || url.username || url.password) {
     throw new SsrfBlockedError("Only https:// URLs are allowed");
   }
   const host = url.hostname.toLowerCase();
@@ -45,7 +46,7 @@ export async function validateOutboundUrl(targetUrl: string): Promise<URL> {
   if (url.port && url.port !== "443") {
     throw new SsrfBlockedError("Non-standard ports are not allowed");
   }
-  if (!(await assertPublicHost(host))) {
+  if (!(await assertPublicHost(host, signal))) {
     throw new SsrfBlockedError("Invalid or restricted host");
   }
   return url;
