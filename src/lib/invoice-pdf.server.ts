@@ -1,4 +1,4 @@
-import logoSvg from "../../public/logo.svg?raw";
+import logoSvg from "@/assets/rout-logo.svg?raw";
 /**
  * Server-only PDF factuur — met de hand opgebouwd (geen native afhankelijkheden,
  * draait dus ook in de Worker-runtime).

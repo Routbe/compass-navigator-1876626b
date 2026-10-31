@@ -1,4 +1,4 @@
-import logoSvg from "../../../public/logo.svg?raw";
+import logoSvg from "@/assets/rout-logo.svg?raw";
 
 /**
  * Enige bron van het officiële ROUT-konijn. Elke kaart, favicon en elk
