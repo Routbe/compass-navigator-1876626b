@@ -52,6 +52,7 @@ interface TrackingPanelProps {
   targetUrl: string; // resolved URL for the current QR (empty if not ready)
   tracked: TrackedQR | null;
   onTrackedChange: (t: TrackedQR | null) => void;
+  suggestedLabel?: string;
 }
 
 const TRACKABLE_TYPES: QRType[] = ["url", "image", "pdf", "mp3", "app"];
@@ -79,7 +80,7 @@ function normalizeUrl(v: string): string {
   return `https://${trimmed}`;
 }
 
-export function TrackingPanel({ qrType, targetUrl, tracked, onTrackedChange }: TrackingPanelProps) {
+export function TrackingPanel({ qrType, targetUrl, tracked, onTrackedChange, suggestedLabel }: TrackingPanelProps) {
   const { t } = useI18n();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -88,6 +89,7 @@ export function TrackingPanel({ qrType, targetUrl, tracked, onTrackedChange }: T
   const [copyMessage, setCopyMessage] = useState("");
 
   const [label, setLabel] = useState("");
+  useEffect(() => { if (suggestedLabel && !tracked) setLabel(suggestedLabel); }, [suggestedLabel, tracked]);
   // Verified branded domains this user may publish links on.
   const [domains, setDomains] = useState<
     { domain: string; is_default: boolean; status: string; short_links_enabled: boolean }[]

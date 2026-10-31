@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { PILLAR_IDS, pillar } from "@/lib/privacy-pillars";
 
 const TITLE = "Trust Center | ROUT";
-const DESC = "Hoe ROUT je gegevens beschermt: Zero-Knowledge PII, Sovereign Identity en Zero-Trust Isolation, met technisch bewijs.";
+const DESC = "Hoe ROUT gegevens beschermt: lokale versleuteling, standaard OIDC, minimale gegevensdeling en gecontroleerde toegang.";
 
 export const Route = createFileRoute("/security")({
   head: () => ({
