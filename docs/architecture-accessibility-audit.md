@@ -10,7 +10,7 @@
 - Hard purge explicitly deletes passkeys, 2FA secrets, Better Auth sessions/provider tokens, OIDC codes/consents and non-FK app email assignments. Due-request lock/guard, rollback and atomic pseudonymous audit are implemented. A completed request no longer retains its raw user UUID.
 - All 38 purge SQL statements were validated with EXPLAIN against live Neon; EXPLAIN did not delete any live account. Isolated PostgreSQL tests verify hard deletion, another account remaining intact and cancelled-request rollback.
 - Central Brevo sender now enforces optional notification preferences and signed, recipient-bound RFC8058 headers across template/fallback sends. GET is non-mutating; forged POST returns 403. Necessary identity/security/billing mail is deliberately not made suppressible.
-- Full regression run: 204 files / 1,236 tests passed. Manual typecheck exited 0; automatic checks had timed out.
+- Full regression run: 204 files / 1,236 tests passed. Final targeted rerun: 20 tests passed after giving the isolated PostgreSQL startup a 20-second test deadline. Manual typecheck exited 0; automatic checks had timed out. Final dark axe rerun after theme styles settled: zero violations.
 
 ## Remaining findings and limitations
 **Critical/high review items:** complete all-page keyboard/screen-reader review; legacy verification progress widget misses required ARIA; live account purge and valid-recipient unsubscribe/mail delivery are not end-to-end tested. No live accounts were destroyed for testing.
@@ -29,4 +29,4 @@ Hard deletion does not imply cryptographic erasure of database backups or object
 
 Mail sender actually lives in src/emails/send.server.ts, not the requested nonexistent brevo.server.ts. Headers apply to optional member notifications, not every essential transactional message. Newsletter campaigns managed in Brevo require their own provider unsubscribe configuration; provider-side delivery/settings remain unverified.
 
-Route metadata inventory found some legacy leaf pages without complete individual metadata; these are documented separately and not treated as a compliance fix.
+Route metadata inventory found legacy console app tabs, console app index and Studio booking without complete individual metadata. Redirect-only aliases and API handlers do not render content pages. Index already supplies its ROUT-specific head through socialMeta. Remaining leaf metadata has not been changed in this audit.

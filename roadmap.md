@@ -5,10 +5,10 @@
 - [x] Audit stock references and run compliance regressions: 1236 tests and manual typecheck pass.
 - [ ] Complete remaining accessibility review and signed-in Studio/consent checks — blocked by a real ROUT session and registered client context; findings in docs/architecture-accessibility-audit.md.
 - [ ] Verify live deletion/valid unsubscribe and provider delivery; review object/backup/audit retention — blocked by disposable authorized ROUT account, original storage/mail service configuration and retention decision.
-- [ ] Harden Mastodon image requests (DNS, HTTPS, 3-second deadline, 5 MB images and persistent cache).
+- [ ] Verify persistent Mastodon avatar cache — implemented protections tested; storage credentials remain unavailable.
 - [x] Enforce booking guest tokens and workspace host authorization without anonymous PII.
 - [x] Harden go, short-link and OAuth/custom redirect targets with tested trust rules.
-- [ ] Add QR destination/campaign AI label and CTA suggestions and verify a real gateway request.
+- [ ] Verify QR AI suggestions through the complete browser flow — server gateway call verified; preview interaction remains unconfirmed.
 - [x] Run scan-fix tests and the full regression suite; inspect preview diagnostics.
 - [x] Import ROUT source, public assets, tests, schema references, and license without repository metadata.
 - [x] Preserve destination framework configuration and move legacy page components into components/imported-pages.
