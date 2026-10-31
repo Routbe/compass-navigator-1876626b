@@ -113,15 +113,8 @@ export async function changePassword(userId: string, newPassword: string) {
 }
 
 export async function changeEmail(userId: string, newEmail: string) {
-  const email = assertEmail(newEmail);
-  const existing = await findUserByEmail(email);
-  if (existing && existing["id"] !== userId) throw new AuthError("email_taken");
-  await sql`
-    update public.users
-       set email = ${email}, email_confirmed_at = null, updated_at = now()
-     where id = ${userId}
-  `;
-  await sql`update public.profiles set email = ${email}, updated_at = now() where id = ${userId}`;
+  const { requestPrimaryEmailChange } = await import("./email-safety.server");
+  return requestPrimaryEmailChange(userId, assertEmail(newEmail));
 }
 
 // ---------------------------------------------------------------------------

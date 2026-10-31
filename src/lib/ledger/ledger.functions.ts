@@ -21,7 +21,7 @@ export const saveLedgerKeys = createServerFn({ method: "POST" }).middleware([req
     const { runBatch } = await import("@/lib/neon");
     await runBatch([
       { query: "select id from public.users where id = $1 for update", params: [context.userId] },
-      { query: `select public.rout_assert(coalesce((select key_id from public.user_ledger_keys where user_id = $1 and retired_at is null), '') = coalesce($2, ''), 'ledger_key_conflict')`, params: [context.userId, data.expectedKeyId] },
+      { query: `select public.rout_merge_assert(coalesce((select key_id from public.user_ledger_keys where user_id = $1 and retired_at is null), '') = coalesce($2, ''), 'ledger_key_conflict')`, params: [context.userId, data.expectedKeyId] },
       { query: "update public.user_ledger_keys set retired_at = now() where user_id = $1 and retired_at is null", params: [context.userId] },
       { query: `insert into public.user_ledger_keys(user_id, key_id, ledger_public_key, encrypted_ledger_private_key) values ($1, $2, $3::jsonb, $4::jsonb)`, params: [context.userId, keyId, JSON.stringify(data.publicKey), JSON.stringify(data.envelopes)] },
     ]);
