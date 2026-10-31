@@ -5,8 +5,9 @@ import { validatedRedirectTarget, redirectDestination } from "@/lib/security/red
 import { redirectUrisMatch } from "@/lib/oauth/redirect-match";
 import { validBookingToken } from "@/lib/booking-engine/access";
 const sqlMock = vi.hoisted(() => vi.fn());
-vi.mock("@/lib/neon", () => ({ sql: (...args: unknown[]) => sqlMock(...args) }));
+vi.mock("@/lib/neon", () => ({ sql: Object.assign((...args: unknown[]) => sqlMock(...args), { query: (...args: unknown[]) => sqlMock(...args) }) }));
 import { bookingSummary } from "@/lib/booking-engine/public.server";
+import { readBookingDetails } from "@/lib/booking-engine/details.server";
 beforeEach(() => { vi.restoreAllMocks(); sqlMock.mockReset(); });
 
 describe("scan security boundaries", () => {
@@ -36,6 +37,25 @@ describe("scan security boundaries", () => {
     expect(JSON.stringify(result)).not.toMatch(/PRIVATE|private@example.com/);
   });
   it("binds guest tokens to the individual booking", () => { expect(validBookingToken("a".repeat(64), "b".repeat(64))).toBe(false); expect(validBookingToken("a".repeat(64), "a".repeat(64))).toBe(true); });
+  it("refuses anonymous booking detail API requests with zero PII", async () => {
+    sqlMock.mockResolvedValue([{ id: "id", booking_token: "a".repeat(64), guest_name: "PRIVATE", guest_email: "private@example.com", guest_note: "SECRET" }]);
+    expect(await readBookingDetails("id", null, null)).toEqual({ forbidden: true });
+  });
+  it("refuses ordinary workspace members even when assigned as host", async () => {
+    sqlMock.mockResolvedValue([{ id: "id", workspace_id: "workspace", host_user_id: "member", workspace_admin: false, booking_token: "a".repeat(64) }]);
+    expect(await readBookingDetails("id", null, "member")).toEqual({ forbidden: true });
+  });
+  it("allows workspace admins full host details", async () => {
+    sqlMock.mockResolvedValue([{ id: "id", workspace_id: "workspace", workspace_admin: true, guest_note: "host note", guest_email: "guest@example.com" }]);
+    const result = await readBookingDetails("id", null, "admin");
+    expect(result?.forbidden).toBe(false); if (!result || result.forbidden) throw new Error("denied admin");
+    expect(result.meeting_notes).toBe("host note"); expect(result.guest_email).toBe("guest@example.com");
+  });
+  it("never exposes host notes to token guests", async () => {
+    sqlMock.mockResolvedValue([{ id: "id", booking_token: "a".repeat(64), guest_note: "host note", guest_name: "own guest" }]);
+    const result = await readBookingDetails("id", "a".repeat(64), null);
+    if (!result || result.forbidden) throw new Error("denied guest"); expect(result.meeting_notes).toBeNull(); expect(result.guest_name).toBe("own guest");
+  });
   it.each(["//evil.com", "javascript:alert(1)", "data:text/html,hi", "vbscript:msgbox(1)", "/\\evil.com", "http://evil.com", "https://user:password@evil.com", "/%2f%2fevil.com"])("rejects /go target %s", value => expect(validatedRedirectTarget(value)).toBeNull());
   it("requires confirmation for unverified external links", () => expect(redirectDestination("https://example.com/campaign")).toBe("/leaving?target=https%3A%2F%2Fexample.com%2Fcampaign"));
   it("directly redirects tier-verified creators", () => expect(redirectDestination("https://example.com/campaign", true)).toBe("https://example.com/campaign"));

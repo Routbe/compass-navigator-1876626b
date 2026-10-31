@@ -587,7 +587,7 @@ const Index = () => {
 
         {/* Right column — styling tools (independent scroll on desktop) */}
         <aside className="min-w-0 border-t border-border/60 bg-background px-4 pb-8 pt-6 sm:px-6 lg:h-full lg:overflow-y-auto lg:border-l lg:border-t-0 lg:px-6 lg:pt-8 [scrollbar-width:thin]">
-          <QRCampaignSuggestions destination={urlValue} onApply={(url, label, cta) => { setQrType("url"); setUrlValue(url); handleFilenameChange(label); setFrameLabel(cta); setCaptionEnabled(true); setCaptionText(cta); }} />
+          <QRCampaignSuggestions destination={urlValue} onApply={(url, label, cta) => { setQrType("url"); setUrlValue(url); handleFilenameChange(label); setFrameLabel(cta); setCaptionEnabled(true); setCaptionTouched(true); setCaptionText(cta); }} />
           <QRStyleTabs
             qrType={qrType}
             value={currentValue}
