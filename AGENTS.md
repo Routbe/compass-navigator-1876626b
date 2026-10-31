@@ -13,6 +13,7 @@
 - OIDC discovery stays standards-only; future Blind-Auth has a separate protocol/SDK and is not advertised as supported. Why: relying-party interoperability precedes experimental issuer-blind flows.
 - RLS enforcement preflight must compare actual runtime role and ownership, not just an unused role flag; no automatic role changes. Why: removing bypass on rout_app while using the owner connection cannot enforce isolation.
 - Accepted QR Smart Labels feed save config/name, printed CTA and optional dynamic label; applying never silently creates a tracked link. Why: a label must survive export/save without enabling tracking implicitly.
+- Mastodon profile avatar fallback resolves handles through the public first-party cache handler; cache failures never fall back to direct provider images. Why: browser image loads must not disclose visitors to Mastodon instances.
 - Ledger crypto uses browser-generated RSA-OAEP/AES-GCM envelopes, client-only KEKs and versioned keys; reset never changes account credentials. Why: servers can append encrypted events without receiving a decrypt key and old history survives key rotation.
 - Sensitive routing changes accept only a signed proof issued by the verified user-verifying WebAuthn hook, never recent session age. Why: password/magic-link sessions cannot impersonate biometric step-up.
 - Disclosure integrity is a serialized canonical hash chain with computed Merkle roots, not an externally anchored guarantee; PQ JWKS metadata must state signing is disabled. Why: prevent false tamper-proof or post-quantum claims.

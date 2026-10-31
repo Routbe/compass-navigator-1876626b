@@ -1360,6 +1360,7 @@
       ],
       "grants": {
         "rout_app": [
+          "DELETE",
           "INSERT",
           "SELECT",
           "UPDATE"
@@ -8541,10 +8542,17 @@
       ],
       "indexes": [],
       "triggers": [],
-      "rls": false,
+      "rls": true,
       "forceRls": false,
       "policies": [],
-      "grants": {}
+      "grants": {
+        "rout_app": [
+          "DELETE",
+          "INSERT",
+          "SELECT",
+          "UPDATE"
+        ]
+      }
     },
     {
       "schema": "public",
@@ -8620,9 +8628,21 @@
       "triggers": [],
       "rls": true,
       "forceRls": false,
-      "policies": [],
+      "policies": [
+        {
+          "name": "rout_archive_due_purge",
+          "permissive": true,
+          "roles": [
+            "rout_app"
+          ],
+          "cmd": "DELETE",
+          "using": "((primary_user_id = rout_current_user_id()) AND (EXISTS ( SELECT 1\n   FROM account_deletions d\n  WHERE ((d.user_id = merged_auth_account_archive.primary_user_id) AND (d.cancelled_at IS NULL) AND (d.completed_at IS NULL) AND (d.purge_after <= now())))))",
+          "check": null
+        }
+      ],
       "grants": {
         "rout_app": [
+          "DELETE",
           "INSERT",
           "SELECT"
         ]

@@ -209,6 +209,7 @@ import { Route as AuthenticatedConsoleAppsAppIdSecurityRouteImport } from './rou
 import { Route as AuthenticatedStudioWWorkspaceSlugFeatureRouteImport } from './routes/_authenticated/studio_.w.$workspaceSlug.$feature'
 import { Route as AuthenticatedStudioWWorkspaceSlugSettingsRouteImport } from './routes/_authenticated/studio_.w.$workspaceSlug.settings'
 import { Route as ApiPublicBookingsIdActionRouteImport } from './routes/api_.public.bookings.$id.$action'
+import { Route as ApiPublicIntegrationsMastodonAvatarRouteImport } from './routes/api_.public.integrations.mastodon.avatar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -1277,6 +1278,12 @@ const ApiPublicBookingsIdActionRoute =
     path: '/api/public/bookings/$id/$action',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicIntegrationsMastodonAvatarRoute =
+  ApiPublicIntegrationsMastodonAvatarRouteImport.update({
+    id: '/mastodon/avatar',
+    path: '/mastodon/avatar',
+    getParentRoute: () => ApiPublicIntegrationsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -1393,7 +1400,7 @@ export interface FileRoutesByFullPath {
   '/api/public/email-forward': typeof ApiPublicEmailForwardRoute
   '/api/public/gallery-media': typeof ApiPublicGalleryMediaRoute
   '/api/public/health': typeof ApiPublicHealthRoute
-  '/api/public/integrations': typeof ApiPublicIntegrationsRoute
+  '/api/public/integrations': typeof ApiPublicIntegrationsRouteWithChildren
   '/api/public/proxy-image': typeof ApiPublicProxyImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/api/public/weather': typeof ApiPublicWeatherRoute
@@ -1477,6 +1484,7 @@ export interface FileRoutesByFullPath {
   '/studio/w/$workspaceSlug/$feature': typeof AuthenticatedStudioWWorkspaceSlugFeatureRoute
   '/studio/w/$workspaceSlug/settings': typeof AuthenticatedStudioWWorkspaceSlugSettingsRoute
   '/api/public/bookings/$id/$action': typeof ApiPublicBookingsIdActionRoute
+  '/api/public/integrations/mastodon/avatar': typeof ApiPublicIntegrationsMastodonAvatarRoute
   '/console/apps/$appId/': typeof AuthenticatedConsoleAppsAppIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -1590,7 +1598,7 @@ export interface FileRoutesByTo {
   '/api/public/email-forward': typeof ApiPublicEmailForwardRoute
   '/api/public/gallery-media': typeof ApiPublicGalleryMediaRoute
   '/api/public/health': typeof ApiPublicHealthRoute
-  '/api/public/integrations': typeof ApiPublicIntegrationsRoute
+  '/api/public/integrations': typeof ApiPublicIntegrationsRouteWithChildren
   '/api/public/proxy-image': typeof ApiPublicProxyImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/api/public/weather': typeof ApiPublicWeatherRoute
@@ -1673,6 +1681,7 @@ export interface FileRoutesByTo {
   '/studio/w/$workspaceSlug/$feature': typeof AuthenticatedStudioWWorkspaceSlugFeatureRoute
   '/studio/w/$workspaceSlug/settings': typeof AuthenticatedStudioWWorkspaceSlugSettingsRoute
   '/api/public/bookings/$id/$action': typeof ApiPublicBookingsIdActionRoute
+  '/api/public/integrations/mastodon/avatar': typeof ApiPublicIntegrationsMastodonAvatarRoute
   '/console/apps/$appId': typeof AuthenticatedConsoleAppsAppIdIndexRoute
 }
 export interface FileRoutesById {
@@ -1792,7 +1801,7 @@ export interface FileRoutesById {
   '/api_/public/email-forward': typeof ApiPublicEmailForwardRoute
   '/api_/public/gallery-media': typeof ApiPublicGalleryMediaRoute
   '/api_/public/health': typeof ApiPublicHealthRoute
-  '/api_/public/integrations': typeof ApiPublicIntegrationsRoute
+  '/api_/public/integrations': typeof ApiPublicIntegrationsRouteWithChildren
   '/api_/public/proxy-image': typeof ApiPublicProxyImageRoute
   '/api_/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/api_/public/weather': typeof ApiPublicWeatherRoute
@@ -1876,6 +1885,7 @@ export interface FileRoutesById {
   '/_authenticated/studio_/w/$workspaceSlug/$feature': typeof AuthenticatedStudioWWorkspaceSlugFeatureRoute
   '/_authenticated/studio_/w/$workspaceSlug/settings': typeof AuthenticatedStudioWWorkspaceSlugSettingsRoute
   '/api_/public/bookings/$id/$action': typeof ApiPublicBookingsIdActionRoute
+  '/api_/public/integrations/mastodon/avatar': typeof ApiPublicIntegrationsMastodonAvatarRoute
   '/_authenticated/console/apps/$appId/': typeof AuthenticatedConsoleAppsAppIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -2079,6 +2089,7 @@ export interface FileRouteTypes {
     | '/studio/w/$workspaceSlug/$feature'
     | '/studio/w/$workspaceSlug/settings'
     | '/api/public/bookings/$id/$action'
+    | '/api/public/integrations/mastodon/avatar'
     | '/console/apps/$appId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -2275,6 +2286,7 @@ export interface FileRouteTypes {
     | '/studio/w/$workspaceSlug/$feature'
     | '/studio/w/$workspaceSlug/settings'
     | '/api/public/bookings/$id/$action'
+    | '/api/public/integrations/mastodon/avatar'
     | '/console/apps/$appId'
   id:
     | '__root__'
@@ -2477,6 +2489,7 @@ export interface FileRouteTypes {
     | '/_authenticated/studio_/w/$workspaceSlug/$feature'
     | '/_authenticated/studio_/w/$workspaceSlug/settings'
     | '/api_/public/bookings/$id/$action'
+    | '/api_/public/integrations/mastodon/avatar'
     | '/_authenticated/console/apps/$appId/'
   fileRoutesById: FileRoutesById
 }
@@ -2560,7 +2573,7 @@ export interface RootRouteChildren {
   ApiPublicEmailForwardRoute: typeof ApiPublicEmailForwardRoute
   ApiPublicGalleryMediaRoute: typeof ApiPublicGalleryMediaRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
-  ApiPublicIntegrationsRoute: typeof ApiPublicIntegrationsRoute
+  ApiPublicIntegrationsRoute: typeof ApiPublicIntegrationsRouteWithChildren
   ApiPublicProxyImageRoute: typeof ApiPublicProxyImageRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   ApiPublicWeatherRoute: typeof ApiPublicWeatherRoute
@@ -4026,6 +4039,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBookingsIdActionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api_/public/integrations/mastodon/avatar': {
+      id: '/api_/public/integrations/mastodon/avatar'
+      path: '/mastodon/avatar'
+      fullPath: '/api/public/integrations/mastodon/avatar'
+      preLoaderRoute: typeof ApiPublicIntegrationsMastodonAvatarRouteImport
+      parentRoute: typeof ApiPublicIntegrationsRoute
+    }
   }
 }
 
@@ -4244,6 +4264,20 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface ApiPublicIntegrationsRouteChildren {
+  ApiPublicIntegrationsMastodonAvatarRoute: typeof ApiPublicIntegrationsMastodonAvatarRoute
+}
+
+const ApiPublicIntegrationsRouteChildren: ApiPublicIntegrationsRouteChildren = {
+  ApiPublicIntegrationsMastodonAvatarRoute:
+    ApiPublicIntegrationsMastodonAvatarRoute,
+}
+
+const ApiPublicIntegrationsRouteWithChildren =
+  ApiPublicIntegrationsRoute._addFileChildren(
+    ApiPublicIntegrationsRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UsernameRoute: UsernameRoute,
@@ -4324,7 +4358,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicEmailForwardRoute: ApiPublicEmailForwardRoute,
   ApiPublicGalleryMediaRoute: ApiPublicGalleryMediaRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
-  ApiPublicIntegrationsRoute: ApiPublicIntegrationsRoute,
+  ApiPublicIntegrationsRoute: ApiPublicIntegrationsRouteWithChildren,
   ApiPublicProxyImageRoute: ApiPublicProxyImageRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   ApiPublicWeatherRoute: ApiPublicWeatherRoute,

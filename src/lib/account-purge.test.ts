@@ -24,6 +24,7 @@ async function fixture() {
     create table public.custom_badges (owner_user_id uuid);
     create table public.sepa_review_queue (user_id uuid);
     create table public.admin_bootstrap_tokens (consumed_by uuid);
+    create table public.merged_auth_account_archive (primary_user_id uuid, secret text);
     create table neon_auth."user" (id uuid primary key, email text);
     create table neon_auth.verification (identifier text);
     create table public.oauth_access_tokens (user_id uuid references users(id) on delete cascade, token text);
@@ -44,6 +45,7 @@ async function fixture() {
     await db.query('insert into neon_auth."user" values ($1, $2)', [id, `${id}@example.com`]);
     await db.query("insert into profiles values ($1,$2)", [id, id]);
     await db.query("insert into account_deletions values ($1,null,null,now()-interval '1 day')", [id]);
+    await db.query("insert into merged_auth_account_archive values ($1,'archived identity')", [id]);
     for (const table of PURGE_OWNER_TABLES) await db.query(`insert into ${table}(user_id,secret) values ($1,'sensitive')`, [id]);
     await db.query("insert into user_ledger_keys values($1,'key')",[id]);
     await db.query("insert into user_encrypted_audit_logs values($1,'key','ciphertext')",[id]);
@@ -70,6 +72,18 @@ describe("irreversible credential purge", () => {
       expect((await conn.query(`select * from neon_auth."${table}" where "userId"=$1`, [other])).rows).toHaveLength(1);
     }
   }, 20_000);
+  for (const table of ["merged_auth_account_archive", "oauth_step_up_challenges", "oauth_step_up_codes", "app_email_assignments"]) {
+    it(`removes all ${table} rows for the purged account and preserves the other account`, async () => {
+      const conn = await fixture();
+      const column = table === "merged_auth_account_archive" ? "primary_user_id" : "user_id";
+      await conn.query(`insert into ${table} (${column}, secret) values ($1,'second sensitive row')`, [user]);
+      await conn.transaction(async tx => {
+        for (const statement of accountPurgeStatements(user, user)) await tx.query(statement.query, statement.params);
+      });
+      expect((await conn.query(`select * from ${table} where ${column}=$1`, [user])).rows).toHaveLength(0);
+      expect((await conn.query(`select * from ${table} where ${column}=$1`, [other])).rows).toHaveLength(1);
+    }, 20_000);
+  }
   it("cancelled requests roll back without destroying credentials", async () => {
     const conn = await fixture();
     await conn.query("update account_deletions set cancelled_at=now() where user_id=$1", [user]);
