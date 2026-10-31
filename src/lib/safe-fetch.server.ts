@@ -24,7 +24,12 @@ function ipv6Blocked(ip: string): boolean {
   const v = ip.toLowerCase().replace(/^\[|\]$/g, "");
   if (v === "::" || v === "::1") return true;
   const mapped = /::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(v);
-  if (mapped) return ipv4Blocked(mapped[1]!);
+  if (mapped?.[1]) return ipv4Blocked(mapped[1]);
+  const hexMapped = /^(?:0:){0,5}(?:::)?ffff:([a-f0-9]{1,4}):([a-f0-9]{1,4})$/.exec(v);
+  if (hexMapped?.[1] && hexMapped[2]) {
+    const high = parseInt(hexMapped[1], 16), low = parseInt(hexMapped[2], 16);
+    return ipv4Blocked(`${high >> 8}.${high & 255}.${low >> 8}.${low & 255}`);
+  }
   return /^(fc|fd|fe8|fe9|fea|feb|ff)/.test(v);
 }
 
@@ -32,11 +37,11 @@ export function ipBlocked(ip: string): boolean {
   return ip.includes(":") ? ipv6Blocked(ip) : ipv4Blocked(ip);
 }
 
-async function resolve(host: string, type: "A" | "AAAA"): Promise<string[]> {
+async function resolve(host: string, type: "A" | "AAAA", signal?: AbortSignal): Promise<string[]> {
   try {
     const r = await fetch(
       `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(host)}&type=${type}`,
-      { headers: { accept: "application/dns-json" }, signal: AbortSignal.timeout(3000) },
+      { headers: { accept: "application/dns-json" }, signal: signal ?? AbortSignal.timeout(3000) },
     );
     if (!r.ok) return [];
     const j = (await r.json()) as { Answer?: { type: number; data: string }[] };
@@ -47,15 +52,26 @@ async function resolve(host: string, type: "A" | "AAAA"): Promise<string[]> {
   }
 }
 
-export async function assertPublicHost(hostname: string): Promise<boolean> {
+export async function assertPublicHost(hostname: string, signal?: AbortSignal): Promise<boolean> {
   const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
   if (!host || host === "localhost" || /\.(local|internal|localhost|lan|home|arpa)$/.test(host))
     return false;
   if (/^\d+$/.test(host) || /^0x/i.test(host)) return false; // decimale/hex IP-trucs
   if (/^[\d.]+$/.test(host) || host.includes(":")) return !ipBlocked(host);
-  const ips = [...(await resolve(host, "A")), ...(await resolve(host, "AAAA"))];
+  const answers = await Promise.all([resolve(host, "A", signal), resolve(host, "AAAA", signal)]);
+  const ips = answers.flat();
   if (ips.length === 0) return false;
   return ips.every((ip) => !ipBlocked(ip));
+}
+
+/** HTTPS-only outbound boundary; redirects must be refused by the caller. */
+export async function validateOutboundUrl(raw: string | URL, signal?: AbortSignal): Promise<URL> {
+  let url: URL;
+  try { url = new URL(raw); } catch { throw Object.assign(new Error("Invalid outbound URL"), { status: 400 }); }
+  if (url.protocol !== "https:" || url.username || url.password || (url.port && url.port !== "443") || !(await assertPublicHost(url.hostname, signal))) {
+    throw Object.assign(new Error("Unsafe outbound destination"), { status: 400 });
+  }
+  return url;
 }
 
 export async function safePublicFetch(
