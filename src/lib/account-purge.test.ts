@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { afterEach, describe, expect, it } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { accountPurgeStatements, PURGE_OWNER_TABLES } from "./account-purge";

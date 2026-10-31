@@ -29,16 +29,16 @@ export const isExportRisky = (r: ScanReport) =>
 
 const STYLES = {
   excellent: {
-    bar: "bg-emerald-500",
-    text: "text-emerald-600 dark:text-emerald-400",
+    bar: "bg-accent",
+    text: "text-highlight-foreground",
     Icon: ShieldCheck,
   },
   good: {
-    bar: "bg-emerald-500",
-    text: "text-emerald-600 dark:text-emerald-400",
+    bar: "bg-accent",
+    text: "text-highlight-foreground",
     Icon: ShieldCheck,
   },
-  risky: { bar: "bg-amber-500", text: "text-amber-600 dark:text-amber-400", Icon: ShieldAlert },
+  risky: { bar: "bg-warning", text: "text-foreground", Icon: ShieldAlert },
   unscannable: { bar: "bg-destructive", text: "text-destructive", Icon: ShieldX },
 } as const;
 
@@ -293,7 +293,7 @@ function Metric({
           className={cn(
             "rounded-full px-1.5 py-0.5 text-[10px] font-medium",
             ok
-              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+              ? "bg-highlight text-highlight-foreground"
               : "bg-destructive/10 text-destructive",
           )}
         >

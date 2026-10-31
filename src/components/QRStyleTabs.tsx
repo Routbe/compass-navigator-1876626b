@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { BRAND_SHAPES, detectBrand, loadLogoDataUrl } from "@/lib/brand";
 import { toast } from "sonner";
 import { contrastRatio, AA_TARGET } from "@/lib/wcag";
@@ -285,6 +286,7 @@ export function QRStyleTabs({
   /** Untouched source of the centre logo so corner rounding stays reversible. */
   const [logoSource, setLogoSource] = useState<string | null>(logo);
   const [logoRadius, setLogoRadius] = useState(0);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   // Brand intelligence — only link-like types carry a domain worth reading.
   const linkLikeValue = ["url", "app", "image", "pdf", "mp3"].includes(qrType) ? value : "";
@@ -714,11 +716,11 @@ export function QRStyleTabs({
               <SelectionIndicator visible={logo === routBunnySrc} />
               <RoutLogo size={26} showWordmark={false} />
             </button>
-            <label
-              role="radio"
-              aria-checked={Boolean(logo) && logo !== routBunnySrc}
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => logoInputRef.current?.click()}
               aria-label="Upload custom center logo"
-              tabIndex={Boolean(logo) && logo !== routBunnySrc ? 0 : -1}
               className={cn(
                 "relative flex-1 h-16 overflow-visible rounded-xl border-2 flex flex-col items-center justify-center gap-1 text-xs font-medium cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
                 logo && logo !== routBunnySrc
@@ -735,8 +737,8 @@ export function QRStyleTabs({
                   <span>{t("style.upload")}</span>
                 </>
               )}
-              <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-            </label>
+            </Button>
+            <input ref={logoInputRef} type="file" accept="image/*" aria-label="Upload custom center logo" className="hidden" onChange={handleLogoUpload} />
           </div>
 
           <p className="text-[11px] text-muted-foreground">{t("style.centerHint")}</p>
