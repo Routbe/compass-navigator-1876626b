@@ -299,7 +299,7 @@ export function createRoutAuth(request?: Request) {
       origin: origin ?? canonicalAppUrl(),
       schema: { passkey: { modelName: "neon_auth.passkey" } },
       authentication: {
-        afterVerification: async ({ verification, clientData }: { verification: { authenticationInfo: { userVerified: boolean } }; clientData: { id: string } }) => {
+        afterVerification: async ({ verification, clientData, ctx }: { verification: { authenticationInfo: { userVerified: boolean } }; clientData: { id: string }; ctx: { setCookie: (name: string, value: string, attributes: { httpOnly: boolean; secure: boolean; sameSite: "strict"; path: string; maxAge: number }) => void } }) => {
           // A fresh password/email session is never evidence of biometric verification.
           if (!verification.authenticationInfo.userVerified) return;
           const { sql } = await import("@/lib/neon");
@@ -309,7 +309,7 @@ export function createRoutAuth(request?: Request) {
           const userId = rows[0]?.["id"];
           if (typeof userId !== "string") return;
           const { grantStepUp } = await import("@/lib/auth/step-up.server");
-          await grantStepUp(userId, "passkey");
+          await grantStepUp(userId, "passkey", (name, value) => ctx.setCookie(name, value, { httpOnly: true, secure: true, sameSite: "strict", path: "/", maxAge: 120 }));
         },
       },
     } as never),

@@ -7,6 +7,7 @@ create table if not exists public.account_email_changes (
   freeze_token_hash text not null unique,
   created_at timestamptz not null default now(),
   recovery_until timestamptz not null default now() + interval '48 hours',
+  warning_sent_at timestamptz,
   confirmed_at timestamptz,
   frozen_at timestamptz
 );

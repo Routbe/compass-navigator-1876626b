@@ -60,7 +60,7 @@ export async function findUserByEmail(email: string): Promise<Row | null> {
 
 export async function findUserById(id: string): Promise<SessionUser | null> {
   const rows = (await sql`
-    select ${sql.unsafe(USER_COLUMNS)} from public.users where id = ${id} limit 1
+    select ${sql.unsafe(USER_COLUMNS)} from public.users where id = ${id} and not is_disabled limit 1
   `) as Row[];
   return rows[0] ? toSessionUser(rows[0]) : null;
 }

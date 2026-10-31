@@ -109,6 +109,10 @@ export async function handleAuthRequest({ request }: { request: Request }) {
     const relativePath = pathname.startsWith("/api/auth")
       ? pathname.slice("/api/auth".length) || "/"
       : pathname;
+    if (relativePath === "/change-email") return Response.json(
+      { code: "passkey_email_change_required", message: "Wijzig je primaire e-mailadres via de beveiligde ROUT-accountpagina." },
+      { status: 403, headers: { "cache-control": "no-store" } },
+    );
     const provider = (await providerFromBody(request, relativePath)) ?? providerFromPath(relativePath);
     // Zero-trust admin portal: social/OAuth sign-in is refused server-side.
     const { appMode, socialLoginAllowed } = await import("@/lib/app-mode");
@@ -157,6 +161,11 @@ export async function handleAuthRequest({ request }: { request: Request }) {
     }
 
     const res = await createRoutAuth(request).handler(request);
+    if (relativePath === "/passkey/generate-authenticate-options" && res.ok) {
+      // Ensure the browser requests biometric/PIN verification; the verified hook also checks UV.
+      const options = await res.json() as Record<string, unknown>;
+      return Response.json({ ...options, userVerification: "required" }, { status: res.status, headers: res.headers });
+    }
     if (res.status >= 400 && !/callback/.test(relativePath)) {
       // Better Auth reports most failures as an error response, not a throw:
       // log the exact payload server-side instead of only a bare status code.

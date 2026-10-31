@@ -22,22 +22,28 @@ export async function requestPrimaryEmailChange(userId: string, newEmail: string
   const freezeUrl = `${origin}/auth/freeze-account?token=${encodeURIComponent(freeze)}`;
   const confirmUrl = `${origin}/auth/confirm-email-change?token=${encodeURIComponent(confirm)}`;
   const warning = await sendMail({ to: oldEmail, subject: "ROUT: wijziging van je primaire e-mailadres aangevraagd", category: "email_change",
-    html: `<p>Er is een wijziging van je primaire e-mailadres aangevraagd. Je oude adres blijft 48 uur beschikbaar voor noodherstel.</p><p><a href="${freezeUrl}">Niet door jou? Bevries deze wijziging</a></p>`, tags: ["security:email-change"] });
+    html: `<p>Er is een wijziging van je primaire e-mailadres aangevraagd. Je oude adres blijft 48 uur beschikbaar voor noodherstel.</p><p><a href="${freezeUrl}">Niet door jou? Bevries deze wijziging</a></p>`,
+    params: { TITLE: "E-mailadreswijziging aangevraagd", BODY: "Je oude adres blijft 48 uur beschikbaar voor noodherstel. Niet door jou aangevraagd? Bevries deze wijziging.", CTA: "Noodbevriezen", LINK: freezeUrl, MAGIC_LINK: freezeUrl, url: freezeUrl, link: freezeUrl }, tags: ["security:email-change"] });
   if (!warning.sent) {
     await sql`update public.account_email_changes set frozen_at=now() where id=${id}`;
     throw new Error("Waarschuwing kon niet worden bezorgd; de wijziging is geblokkeerd.");
   }
+  await sql`update public.account_email_changes set warning_sent_at=now() where id=${id}`;
   const verification = await sendMail({ to: newEmail, subject: "ROUT: bevestig je nieuwe e-mailadres", category: "email_change",
-    html: `<p><a href="${confirmUrl}">Bevestig je nieuwe e-mailadres</a></p>`, tags: ["security:email-confirm"] });
+    html: `<p><a href="${confirmUrl}">Bevestig je nieuwe e-mailadres</a></p>`,
+    params: { TITLE: "Bevestig je nieuwe e-mailadres", BODY: "Bevestig je nieuwe adres met je ROUT-account en passkey.", CTA: "Bevestigen", LINK: confirmUrl, MAGIC_LINK: confirmUrl, url: confirmUrl, link: confirmUrl }, tags: ["security:email-confirm"] });
   if (!verification.sent) throw new Error("Bevestigingsmail kon niet worden bezorgd. Je oude adres blijft actief.");
   return { ok: true as const };
 }
 
 /** Possession of the old-address token authorizes a single emergency freeze, not sign-in. */
 export async function freezeEmailChange(token: string) {
-  const { runBatch } = await import("@/lib/neon");
+  const { runBatch, sql, withDbContext } = await import("@/lib/neon");
   const hash = await hashToken(token);
-  await runBatch([
+  // Read token owner before entering owner-scoped RLS; never trust a request-supplied user ID.
+  const owner = (await sql`select user_id from public.account_email_changes where freeze_token_hash=${hash} and recovery_until>now() limit 1`)[0];
+  if (typeof owner?.["user_id"] !== "string") throw new Error("freeze_token_invalid");
+  await withDbContext({ userId: owner["user_id"], workspaceId: null }, () => runBatch([
     { query: "select id from public.account_email_changes where freeze_token_hash=$1 for update", params: [hash] },
     { query: `select public.rout_merge_assert(exists(select 1 from public.account_email_changes where freeze_token_hash=$1 and recovery_until>now() and frozen_at is null),'freeze_token_invalid')`, params: [hash] },
     { query: `update public.account_email_changes set frozen_at=now() where freeze_token_hash=$1`, params: [hash] },
@@ -47,7 +53,7 @@ export async function freezeEmailChange(token: string) {
     { query: `delete from neon_auth.session s using public.users u,public.account_email_changes c where c.freeze_token_hash=$1 and u.id=c.user_id and s."userId"::text=coalesce(u.auth_user_id::text,u.user_metadata->>'neon_auth_id')`, params: [hash] },
     { query: `update public.oauth_access_tokens set revoked_at=now() where user_id in(select user_id from public.account_email_changes where freeze_token_hash=$1)`, params: [hash] },
     { query: `update public.oauth_refresh_tokens set revoked_at=now() where user_id in(select user_id from public.account_email_changes where freeze_token_hash=$1)`, params: [hash] },
-  ]);
+  ]));
   return { ok: true as const };
 }
 
@@ -57,7 +63,7 @@ export async function confirmPrimaryEmailChange(userId: string, token: string) {
   const hash = await hashToken(token);
   await runBatch([
     { query: "select id from public.account_email_changes where user_id=$1 and confirm_token_hash=$2 for update", params: [userId,hash] },
-    { query: `select public.rout_merge_assert(exists(select 1 from public.account_email_changes where user_id=$1 and confirm_token_hash=$2 and confirmed_at is null and frozen_at is null and recovery_until>now()),'email_confirmation_invalid')`, params: [userId,hash] },
+    { query: `select public.rout_merge_assert(exists(select 1 from public.account_email_changes where user_id=$1 and confirm_token_hash=$2 and confirmed_at is null and frozen_at is null and warning_sent_at is not null and recovery_until>now()),'email_confirmation_invalid')`, params: [userId,hash] },
     { query: `update public.users u set email=c.new_email,email_confirmed_at=now(),updated_at=now() from public.account_email_changes c where c.user_id=$1 and c.confirm_token_hash=$2 and u.id=c.user_id`, params: [userId,hash] },
     { query: `update public.profiles p set email=c.new_email,updated_at=now() from public.account_email_changes c where c.user_id=$1 and c.confirm_token_hash=$2 and p.id=c.user_id`, params: [userId,hash] },
     { query: `update neon_auth."user" b set email=c.new_email,"emailVerified"=true from public.account_email_changes c join public.users u on u.id=c.user_id where c.user_id=$1 and c.confirm_token_hash=$2 and b.id::text=coalesce(u.auth_user_id::text,u.user_metadata->>'neon_auth_id')`, params: [userId,hash] },
