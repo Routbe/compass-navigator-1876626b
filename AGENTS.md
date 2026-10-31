@@ -10,6 +10,10 @@
 <!-- LOVABLE:END -->
 
 ## Import architecture
+- Ledger crypto uses browser-generated RSA-OAEP/AES-GCM envelopes, client-only KEKs and versioned keys; reset never changes account credentials. Why: servers can append encrypted events without receiving a decrypt key and old history survives key rotation.
+- Sensitive routing changes accept only a signed proof issued by the verified user-verifying WebAuthn hook, never recent session age. Why: password/magic-link sessions cannot impersonate biometric step-up.
+- Disclosure integrity is a serialized canonical hash chain with computed Merkle roots, not an externally anchored guarantee; PQ JWKS metadata must state signing is disabled. Why: prevent false tamper-proof or post-quantum claims.
+- Security schema additions follow immutable numbered history; replay snapshots may be regenerated only from migrations, never live grant drift. Why: preserve reviewable Neon provenance.
 - Referral attribution stays in memory for the page lifetime and historical tracking storage is cleared on entry. Why: no persistent referral identifiers or cookies are needed for identity operation.
 - Shared focus and local fonts live in the global design system; decorative icons stay hidden when adjacent controls/text supply the accessible name. Why: consistent keyboard visibility without repetitive screen-reader announcements or third-party font requests.
 - Account purge uses a locked, due-request-guarded Neon transaction with explicit credential/non-FK cleanup and keyed audit pseudonyms; immutable migrations stay untouched. Why: failed/concurrent/cancelled purges must not leave partial credentials or identifying completed requests.

@@ -95,6 +95,8 @@ export async function generateUserInfoResponse(
     // No sensitive claims may leave ROUT without their disclosure record.
     await sql`insert into public.identity_disclosure_logs (user_id, client_id, disclosed_scopes, ip_hash)
       values (${userId}, ${clientId}, ${disclosed}, ${await hashIp(opts.ip ?? null)})`;
+    const { appendEncryptedUserEvent } = await import("@/lib/ledger/ledger.server");
+    await appendEncryptedUserEvent(userId, { event_type: "identity_disclosure", app_name: client?.name ?? clientId, scopes: disclosed, timestamp: new Date().toISOString() });
   }
   return { sub: opts.sub, ...claims };
 }

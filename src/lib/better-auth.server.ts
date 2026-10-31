@@ -337,6 +337,13 @@ export function createRoutAuth(request?: Request) {
         create: {
           after: async (session: { id: string; userId?: string; userAgent?: string | null }) => {
             if (!session.userId) return;
+            const { sql } = await import("@/lib/neon");
+            const rows = await sql`select id from public.users where auth_user_id::text=${session.userId} or user_metadata->>'neon_auth_id'=${session.userId} limit 1`;
+            const id = rows[0]?.["id"];
+            if (typeof id === "string") {
+              const { appendEncryptedUserEvent } = await import("@/lib/ledger/ledger.server");
+              await appendEncryptedUserEvent(id, { event_type: "sign_in", timestamp: new Date().toISOString() });
+            }
             const { later, notifyNewSignIn } = await import("./site-mail.server");
             later(() => notifyNewSignIn(session.userId as string, session.id, session.userAgent ?? null));
           },
