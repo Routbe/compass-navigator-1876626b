@@ -29,7 +29,8 @@ async function fixture() {
     create table public.oauth_access_tokens (user_id uuid references users(id) on delete cascade, token text);
     create table public.oauth_refresh_tokens (user_id uuid references users(id) on delete cascade, token text);`);
   for (const table of PURGE_OWNER_TABLES) await db.exec(`create table public.${table} (user_id uuid, secret text)`);
-  await db.exec(`alter table security_audit_logs add column created_at timestamptz not null default now();
+  await db.exec(`alter table security_audit_logs alter column user_id type text using user_id::text;
+    alter table security_audit_logs add column created_at timestamptz not null default now();
     create table public.user_ledger_keys(user_id uuid references users(id) on delete cascade,key_id text,primary key(user_id,key_id));
     create table public.user_encrypted_audit_logs(user_id uuid references users(id) on delete cascade,key_id text,encrypted_payload text,
       foreign key(user_id,key_id) references user_ledger_keys(user_id,key_id) on delete cascade);
