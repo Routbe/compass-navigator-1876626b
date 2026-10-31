@@ -195,7 +195,7 @@ export function ProfileThemePicker({
               </button>
             ))}
           </div>
-          <div className="flex min-w-0 items-center gap-2 pt-2">
+          <div className="w-full">
             <DesignButtonsTypographySection prefs={prefs} setPref={setPref} theme={theme} inlineControls section="buttons" />
           </div>
           <div className="flex min-w-0 items-center gap-2 pt-2">
@@ -217,7 +217,7 @@ export function ProfileThemePicker({
               </button>
             ))}
           </div>
-          <div className="flex items-start justify-between gap-4 border-t border-border pt-4">
+          <div className="w-full">
             <DesignButtonsTypographySection prefs={prefs} setPref={setPref} theme={theme} inlineControls section="typography" />
           </div>
           <div className="flex items-start justify-between gap-4 border-t border-border pt-4">
