@@ -10,15 +10,16 @@
 
 ## Live evidence, 2026-10-31
 - Linked Neon connection: current_user = neondb_owner, BYPASSRLS = true, owns 152 public tables.
-- rout_app: BYPASSRLS = true, owns zero public tables. No live mutation has been performed in this turn; explicit migration approval is pending.
-- Mastodon registration RLS is disabled live.
+- After explicit user approval, all statements of 0149 were applied as one Neon gateway transaction (HTTP 200). Readback confirms rout_app BYPASSRLS = false and zero owned public tables.
+- Mastodon registration RLS is enabled live. Eight role grant sets and archive DELETE policy match the replay.
+- Full read-only live catalog comparison has no remaining grant differences; 14 differences remain from unapplied 0145–0148 (ledger/email/chain schema and audit guard). Live schema is not fully synchronized.
 - oauth_step_up_challenges has ON DELETE CASCADE. Merge archive, codes and app_email_assignments have no user FK and need explicit purge.
 - Browser: three actual AI suggestions appeared; selecting the second updated Label and applying succeeded; zero page errors.
 - Browser: invalid avatar handle returned 400; valid handle returned 503 because persistent storage is unavailable.
 - Live deletion and authenticated saving are not verified without an authorized disposable ROUT account.
 
 ## Required before claiming live enforcement
-1. Explicitly approve the exact 0149 migration, then apply and read back role/RLS/grants.
+1. 0149 role/RLS/grants applied and read back; final tests: 1,271 passing, manual tsgo exit 0.
 2. Provision/link a non-owner runtime connection without inherited bypass membership and review public/auth/cron service access. Removing bypass only from the unused role cannot enforce current runtime isolation.
 3. Apply/review previously pending 0145–0148 separately and compare the whole live catalog with the replay; 0149 alone cannot eliminate missing earlier ledger/email schema.
 4. Verify real signed-in own/foreign reads and due account purge under the final runtime role.
