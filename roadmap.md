@@ -1,5 +1,5 @@
 # Repository import
-- [ ] Add client-encrypted ledger, verified disclosure chain, strict passkey step-up, email safety lock/freeze and honest hybrid JWKS metadata; run security/full regressions.
+- [ ] Add asymmetric ledger with client-only private-key wrapping/recovery and account-safe reset, verified disclosure chain, strict passkey step-up, email safety lock/freeze and honest hybrid JWKS metadata; run security/full regressions.
 - [ ] Review blind-token protocol and client-only key recovery boundaries before claiming unlinkability or zero-knowledge guarantees.
 - [x] Audit trackers/data minimization; remove external fonts/logo CDN and persistent referral tracking; no banner.
 - [x] Improve shared keyboard focus, QR names, contrast, consent labels and upload/menu keyboard interaction; public light/dark axe passes.
