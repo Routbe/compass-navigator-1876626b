@@ -8,6 +8,7 @@ import { suggestQrCampaignFn } from "@/lib/qr-ai.functions";
 import { qrCampaignSchema } from "@/lib/qr-ai-schema";
 
 export function QRCampaignSuggestions({ destination, onApply }: { destination: string; onApply: (url: string, label: string, cta: string) => void }) {
+  const [open, setOpen] = useState(false);
   const [url, setUrl] = useState(""); const [goal, setGoal] = useState("");
   const [busy, setBusy] = useState(false); const [error, setError] = useState("");
   const [suggestion, setSuggestion] = useState<{ label: string; callToAction: string; destination: string } | null>(null);
@@ -19,7 +20,7 @@ export function QRCampaignSuggestions({ destination, onApply }: { destination: s
     try { const result = await suggest({ data: parsed.data }); if (result.ok) setSuggestion({ ...result, destination: parsed.data.destination }); else setError(result.error); }
     catch { setError("Het AI-voorstel kon niet worden gemaakt."); } finally { setBusy(false); }
   }
-  return <details className="border-b border-border pb-5 mb-5">
+  return <details open={open} onToggle={e => setOpen(e.currentTarget.open)} className="border-b border-border pb-5 mb-5">
     <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium"><Sparkles className="h-4 w-4" />Campagne · Lovable AI</summary>
     <div className="space-y-3 pt-4">
       <div className="space-y-1.5"><Label htmlFor="ai-qr-url">Bestemming</Label><Input id="ai-qr-url" type="url" value={url || destination} onChange={e => setUrl(e.target.value)} placeholder="https://…" maxLength={2048} disabled={busy} /></div>
