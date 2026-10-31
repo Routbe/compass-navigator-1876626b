@@ -6,8 +6,11 @@ import { ProfileLinksManager } from "@/components/dashboard/editor/ProfileLinksM
 import { AddComponentModal, type WidgetId } from "@/components/studio/AddComponentModal";
 import { scheduledBlocks, type ProfileBlock } from "@/lib/profile";
 import { StudioSectionIcon } from "./StudioSectionIcon";
+import { Switch } from "@/components/ui/switch";
 
 interface Props {
+  cardEffects: boolean;
+  onCardEffectsChange: (value: boolean) => void;
   blocks: ProfileBlock[];
   onBlocksChange: Dispatch<SetStateAction<ProfileBlock[]>>;
   openBlock: string | null;
@@ -30,6 +33,8 @@ interface Props {
  * bijhorende secties. Elke wijziging is meteen zichtbaar in de live preview.
  */
 export function ProfileContentAccordion({
+  cardEffects,
+  onCardEffectsChange,
   blocks,
   onBlocksChange,
   openBlock,
@@ -79,6 +84,13 @@ export function ProfileContentAccordion({
           onOpenBlockChange={onOpenBlockChange}
           onOpenAddDrawer={onOpenAddDrawer}
         />
+        <details className="space-y-3 border-t border-border pt-4">
+          <summary className="cursor-pointer text-sm font-medium">Map- en kaartinstellingen</summary>
+          <div className="flex items-start justify-between gap-4 pt-3">
+            <div className="min-w-0"><p className="text-sm font-medium">{t("studio.effects.title")}</p><p className="text-sm text-muted-foreground">{t("studio.effects.help")}</p></div>
+            <Switch aria-label={t("studio.effects.title")} checked={cardEffects} onCheckedChange={onCardEffectsChange} />
+          </div>
+        </details>
         {children}
       </AccordionContent>
     </AccordionItem>

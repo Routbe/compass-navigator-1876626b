@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { LiveIntegrations, useLiveIntegrationCount } from "@/components/studio/LiveIntegrations";
 import type { ProfileDisplayPrefs } from "@/lib/profile-display";
+import { Switch } from "@/components/ui/switch";
 
 type SetPref = <K extends keyof ProfileDisplayPrefs>(key: K, value: ProfileDisplayPrefs[K]) => void;
 
@@ -28,6 +29,14 @@ export function LiveStatusAccordion({ prefs, setPref }: { prefs: ProfileDisplayP
       </AccordionTrigger>
       <AccordionContent className="pb-5">
         <StatusContentSettings prefs={prefs} setPref={setPref} bare />
+        <div className="mt-5 space-y-4 border-t border-border pt-4">
+          {([['steamPresence', 'studio.effects.steam', 'studio.effects.steamHelp'], ['lastfmPresence', 'studio.effects.lastfm', 'studio.effects.lastfmHelp']] as const).map(([key, title, help]) => (
+            <div key={key} className="flex items-start justify-between gap-4">
+              <div className="min-w-0"><p className="text-sm font-medium">{t(title)}</p><p className="text-sm text-muted-foreground">{t(help)}</p></div>
+              <Switch aria-label={t(title)} checked={prefs[key]} onCheckedChange={(value) => setPref(key, value)} />
+            </div>
+          ))}
+        </div>
         <LiveIntegrationsPanel />
       </AccordionContent>
     </AccordionItem>
