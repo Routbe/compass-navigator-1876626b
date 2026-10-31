@@ -45,7 +45,7 @@ describe("storage shown for the active scope", () => {
 
 describe("personal account page has no workspace team", () => {
   it("does not render TeamTab", () => {
-    expect(readFileSync(join(ROOT, "src/pages/AccountSettings.tsx"), "utf8")).not.toMatch(/TeamTab/);
+    expect(readFileSync(join(ROOT, "src/components/imported-pages/AccountSettings.tsx"), "utf8")).not.toMatch(/TeamTab/);
   });
 });
 

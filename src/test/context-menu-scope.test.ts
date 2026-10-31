@@ -23,7 +23,7 @@ describe("context-aware profile menu", () => {
 });
 
 describe("/studio/account holds only global settings", () => {
-  const src = readFileSync(join(__dirname, "..", "pages", "AccountSettings.tsx"), "utf8");
+  const src = readFileSync(join(__dirname, "..", "components", "imported-pages", "AccountSettings.tsx"), "utf8");
   it("has no team, workspace or design panels", () => {
     for (const p of ["TeamTab", "DesignTemplatesPanel", "ProfileThemePicker"]) expect(src).not.toContain(p);
   });
