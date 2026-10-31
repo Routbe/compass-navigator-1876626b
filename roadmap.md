@@ -1,4 +1,5 @@
 # Repository import
+- [ ] Current directive: review/apply strict Neon RLS migration after explicit approval, align eight grants without rewriting history, wire QR pills and Mastodon avatars, and audit deletion of merge/step-up/relay records.
 - [x] Harden ledger upload envelopes, prove non-bypass owner isolation/cascades, add due-purge audit-trigger fix, and connect QR Smart Labels to preview/save/dynamic label; 1263 tests and manual typecheck pass.
 - [ ] Apply purge audit fix 0148 — blocked by explicit live-migration approval; isolated trigger/purge tests pass.
 - [x] Implement asymmetric ledger with local envelopes/recovery and account-safe key reset, disclosure chain/Merkle root, verified-UV passkey guard and honest hybrid JWKS metadata; 1254 tests and typecheck exit 0.
