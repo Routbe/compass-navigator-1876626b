@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { SketchArrow } from "@/components/SketchArrow";
@@ -75,6 +76,7 @@ function UrlInput({
   placeholder: string;
   label: string;
 }) {
+  const id = useId();
   const [inputValue, setInputValue] = useState(value);
 
   useEffect(() => {
@@ -107,8 +109,11 @@ function UrlInput({
 
   return (
     <div className="space-y-2">
-      <label className={labelClassName}>{label}</label>
+      <label htmlFor={id} className={labelClassName}>{label}</label>
       <Input
+        id={id}
+        aria-invalid={check.status === "invalid"}
+        aria-describedby={check.status === "empty" ? undefined : `${id}-feedback`}
         type="text"
         placeholder={placeholder}
         value={inputValue}
@@ -119,7 +124,7 @@ function UrlInput({
       {check.status === "empty" ? (
         <HelperHint />
       ) : (
-        <p className={cn("flex items-center gap-2 text-xs", pill.text)}>
+        <p id={`${id}-feedback`} aria-live="polite" className={cn("flex items-center gap-2 text-xs", pill.text)}>
           <span className={cn("h-2 w-2 shrink-0 rounded-full", pill.dot)} aria-hidden />
           {check.message}
         </p>
@@ -139,6 +144,7 @@ function RichFields({
   onChange: (key: string, value: string) => void;
 }) {
   const { locale } = useI18n();
+  const instanceId = useId();
   const def = getRichDefinition(typeId);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   if (!def) return null;
@@ -169,7 +175,7 @@ function RichFields({
         />
       )}
       {fields.map((f) => {
-        const id = `rich-${typeId}-${f.key}`;
+        const id = `${instanceId}-rich-${typeId}-${f.key}`;
         const err = touched[f.key] ? errors[f.key] : undefined;
         const label = locale === "nl" ? f.labelNl : f.label;
         return (
@@ -183,6 +189,8 @@ function RichFields({
                 id={id}
                 rows={3}
                 maxLength={500}
+                aria-invalid={Boolean(err)}
+                aria-describedby={err ? `${id}-error` : undefined}
                 className={textareaClassName}
                 placeholder={f.placeholder}
                 value={values[f.key] ?? ""}
@@ -251,6 +259,7 @@ export function QRInputFields({
   richValues,
   onRichFieldChange,
 }: QRInputFieldsProps) {
+  const instanceId = useId();
   if (isRichType(qrType)) {
     return (
       <RichFields
@@ -286,8 +295,9 @@ export function QRInputFields({
     case "text":
       return (
         <div className="space-y-2">
-          <label className={labelClassName}>Text Content</label>
+          <label htmlFor={`${instanceId}-text`} className={labelClassName}>Text Content</label>
           <textarea
+            id={`${instanceId}-text`}
             placeholder="Enter any text content..."
             value={value}
             onChange={(e) => onValueChange(e.target.value)}
@@ -300,8 +310,9 @@ export function QRInputFields({
       return (
         <div className="space-y-3">
           <div className="space-y-2">
-            <label className={labelClassName}>Network Name</label>
+            <label htmlFor={`${instanceId}-ssid`} className={labelClassName}>Network Name</label>
             <Input
+              id={`${instanceId}-ssid`}
               type="text"
               placeholder="My WiFi Network"
               value={wifiSSID}
@@ -310,10 +321,13 @@ export function QRInputFields({
             />
           </div>
           <div className="space-y-2">
-            <label className={labelClassName}>Encryption</label>
-            <div className="flex gap-2">
+            <p id={`${instanceId}-encryption`} className={labelClassName}>Encryption</p>
+            <div role="group" aria-labelledby={`${instanceId}-encryption`} className="flex gap-2">
               {(["WPA", "WEP", "nopass"] as const).map((enc) => (
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
+                  aria-pressed={wifiEncryption === enc}
                   key={enc}
                   onClick={() => {
                     onWifiEncryptionChange(enc);
@@ -326,18 +340,19 @@ export function QRInputFields({
                     "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                     wifiEncryption === enc
                       ? "gradient-border-selected text-foreground"
-                      : "border border-transparent hover:bg-[#F5F5F5]/50 text-foreground",
+                      : "border border-transparent hover:bg-muted text-foreground",
                   )}
                 >
                   {enc === "nopass" ? "None" : enc}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
           {wifiEncryption !== "nopass" && (
             <div className="space-y-2">
-              <label className={labelClassName}>Password</label>
+              <label htmlFor={`${instanceId}-password`} className={labelClassName}>Password</label>
               <Input
+                id={`${instanceId}-password`}
                 type="password"
                 placeholder="Enter password"
                 value={wifiPassword}
@@ -353,8 +368,9 @@ export function QRInputFields({
       return (
         <div className="space-y-3">
           <div className="space-y-2">
-            <label className={labelClassName}>Email Address</label>
+            <label htmlFor={`${instanceId}-email`} className={labelClassName}>Email Address</label>
             <Input
+              id={`${instanceId}-email`}
               type="email"
               placeholder="hello@delplanche.com"
               value={emailAddress}
@@ -363,10 +379,11 @@ export function QRInputFields({
             />
           </div>
           <div className="space-y-2">
-            <label className={labelClassName}>
+            <label htmlFor={`${instanceId}-subject`} className={labelClassName}>
               Subject <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
             <Input
+              id={`${instanceId}-subject`}
               type="text"
               placeholder="Email subject"
               value={emailSubject}
@@ -375,10 +392,11 @@ export function QRInputFields({
             />
           </div>
           <div className="space-y-2">
-            <label className={labelClassName}>
+            <label htmlFor={`${instanceId}-email-body`} className={labelClassName}>
               Message <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
             <textarea
+              id={`${instanceId}-email-body`}
               placeholder="Email body..."
               value={emailBody}
               onChange={(e) => onEmailBodyChange(e.target.value)}
@@ -392,8 +410,9 @@ export function QRInputFields({
       return (
         <div className="space-y-3">
           <div className="space-y-2">
-            <label className={labelClassName}>Phone Number</label>
+            <label htmlFor={`${instanceId}-sms-phone`} className={labelClassName}>Phone Number</label>
             <Input
+              id={`${instanceId}-sms-phone`}
               type="tel"
               placeholder="+1234567890"
               value={smsPhone}
@@ -402,10 +421,11 @@ export function QRInputFields({
             />
           </div>
           <div className="space-y-2">
-            <label className={labelClassName}>
+            <label htmlFor={`${instanceId}-sms-message`} className={labelClassName}>
               Message <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
             <textarea
+              id={`${instanceId}-sms-message`}
               placeholder="Your message..."
               value={smsMessage}
               onChange={(e) => onSmsMessageChange(e.target.value)}
@@ -419,8 +439,9 @@ export function QRInputFields({
       return (
         <div className="space-y-3">
           <div className="space-y-2">
-            <label className={labelClassName}>Phone Number</label>
+            <label htmlFor={`${instanceId}-whatsapp-phone`} className={labelClassName}>Phone Number</label>
             <Input
+              id={`${instanceId}-whatsapp-phone`}
               type="tel"
               placeholder="+1234567890"
               value={whatsappPhone}
@@ -429,10 +450,11 @@ export function QRInputFields({
             />
           </div>
           <div className="space-y-2">
-            <label className={labelClassName}>
+            <label htmlFor={`${instanceId}-whatsapp-message`} className={labelClassName}>
               Message <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
             <textarea
+              id={`${instanceId}-whatsapp-message`}
               placeholder="Hi! I found you via QR..."
               value={whatsappMessage}
               onChange={(e) => onWhatsappMessageChange?.(e.target.value)}
@@ -472,8 +494,9 @@ export function QRInputFields({
     default:
       return (
         <div className="space-y-2">
-          <label className={labelClassName}>Content</label>
+          <label htmlFor={`${instanceId}-content`} className={labelClassName}>Content</label>
           <Input
+            id={`${instanceId}-content`}
             type="text"
             placeholder="Enter content..."
             value={value}

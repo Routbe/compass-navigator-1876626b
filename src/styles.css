@@ -1,6 +1,13 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "@fontsource/work-sans/400.css";
+@import "@fontsource/work-sans/500.css";
+@import "@fontsource/work-sans/600.css";
+@import "@fontsource/work-sans/700.css";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/600.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -82,7 +89,7 @@ html {
 
 .dark {
   color-scheme: dark;
-  --background: 30 6% 7%;
+  --background: 240 4.35% 4.51%;
   --foreground: 42 31% 94%;
   --card: 30 5% 11%;
   --card-foreground: 42 31% 94%;
@@ -248,6 +255,17 @@ html {
 }
 
 @utility preview-sheet {
+  /* A print-white preview needs light text roles even inside the dark shell. */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
+  --muted: 40 20% 93%;
+  --muted-foreground: 30 6% 38%;
+  --primary: 0 0% 10%;
+  --primary-foreground: 0 0% 100%;
+  --highlight: 150 24% 92%;
+  --highlight-foreground: 155 30% 20%;
   background-color: #ffffff;
   color: #1c1917;
 
@@ -682,7 +700,7 @@ textarea:focus-visible {
  * ring for every focusable element reached by keyboard.
  */
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 2px solid hsl(var(--ring));
+  outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
   border-radius: calc(var(--radius) - 0.25rem);
 }
@@ -690,9 +708,9 @@ textarea:focus-visible {
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 1px;
-  border-color: hsl(var(--ring));
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-color: hsl(var(--primary));
 }
 
 /* Respect reduced-motion for every decorative animation. */

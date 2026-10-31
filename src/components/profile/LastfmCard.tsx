@@ -33,7 +33,7 @@ export function LastfmCard({ handle, theme }: { handle: string; theme: Theme }) 
   const cls = "mx-auto flex w-full max-w-md items-center gap-3 rounded-2xl border px-3 py-2.5";
   const style = { background: theme.card, borderColor: theme.border, color: theme.text };
   return d.url ? (
-    <a href={d.url} target="_blank" rel="noopener noreferrer" className={cls} style={style} aria-label={t("lastfm.label")}>{body}</a>
+    <a href={d.url} target="_blank" rel="noopener noreferrer" className={cls} style={style} aria-label={`${t("lastfm.label")}: ${d.track}${d.artist ? ` – ${d.artist}` : ""}`}>{body}</a>
   ) : (
     <div className={cls} style={style} aria-live="polite">{body}</div>
   );

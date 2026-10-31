@@ -146,12 +146,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Lora:wght@400;600&family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap",
-      },
       { rel: "manifest", href: "/manifest.json" },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
@@ -189,9 +183,8 @@ function RootComponent() {
 
   useEffect(() => {
     // Offline registration is disabled until a service worker is configured here.
-    // `?ref=` op elke entree onthouden (30 dagen), zodat de attributie
-    // overleeft terwijl de bezoeker rondkijkt vóór registratie.
-    void import("@/lib/referral").then((m) => m.captureReferralFromUrl());
+    // Remove historical tracking storage; any new attribution stays in memory.
+    void import("@/lib/referral").then((m) => { m.clearReferrer(); m.captureReferralFromUrl(); });
     // Preview/dev: a chosen admin shell opens the portal from the home page.
     if (!isModeFixed() && window.location.pathname === "/" && detectShellMode() === "admin") {
       void router.navigate({ to: "/admin" } as never);

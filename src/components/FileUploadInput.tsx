@@ -215,6 +215,7 @@ export function FileUploadInput({ type, value, onValueChange }: FileUploadInputP
           variant="ghost"
           size="icon"
           onClick={handleClear}
+          aria-label="Bestand verwijderen"
           className="flex-shrink-0 h-8 w-8 text-muted-foreground hover:text-foreground"
         >
           <X className="w-4 h-4" />
@@ -225,14 +226,17 @@ export function FileUploadInput({ type, value, onValueChange }: FileUploadInputP
 
   return (
     <div className="space-y-3">
-      <label className="input-label">{config.label}</label>
+      <p className="input-label">{config.label}</p>
 
       {value ? (
         <FileItem />
       ) : isUploading ? (
         <FileItem showProgress />
       ) : (
-        <div
+        <Button
+          type="button"
+          variant="outline"
+          aria-label={config.label}
           className={`relative flex flex-col items-center justify-center gap-2 p-6 h-[120px] rounded-xl transition-all cursor-pointer ${
             isDragOver
               ? "border border-transparent bg-[#EEF2FF]"
@@ -258,15 +262,6 @@ export function FileUploadInput({ type, value, onValueChange }: FileUploadInputP
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          <input
-            ref={inputRef}
-            type="file"
-            accept={config.accept}
-            onChange={handleFileChange}
-            className="hidden"
-            disabled={isUploading}
-          />
-
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center ${
               isDragOver ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"
@@ -282,8 +277,10 @@ export function FileUploadInput({ type, value, onValueChange }: FileUploadInputP
             </p>
             {!isDragOver && <p className="text-xs text-muted-foreground">{config.description}</p>}
           </div>
-        </div>
+        </Button>
       )}
+
+      <input ref={inputRef} type="file" aria-label={config.label} accept={config.accept} onChange={handleFileChange} className="hidden" disabled={isUploading} />
 
       <p className="text-sm text-muted-foreground">
         Upload a file and we'll generate a QR code linking to it

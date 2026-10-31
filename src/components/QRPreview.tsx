@@ -104,11 +104,13 @@ function InstantQR({
   fgColor,
   visible,
   matrix,
+  label,
 }: {
   value: string;
   fgColor: string;
   visible: boolean;
   matrix: { count: number; path: string };
+  label: string;
 }) {
   const { count, path } = matrix;
   void value;
@@ -126,7 +128,7 @@ function InstantQR({
           shapeRendering="crispEdges"
           style={{ width: "100%", height: "100%", display: "block" }}
           role="img"
-          aria-label="QR code preview"
+          aria-label={label}
         >
           <path d={path} fill={fgColor} />
         </svg>
@@ -192,6 +194,7 @@ interface QRPreviewProps {
   downloadFormat?: "png" | "svg" | "jpeg";
   downloadMargin?: number;
   filename?: string;
+  profileName?: string;
   dotStyle?: DotType;
   outerCornerStyle?: CornerSquareType;
   innerCornerStyle?: CornerDotType;
@@ -300,6 +303,7 @@ export function QRPreview({
   downloadFormat = "png",
   downloadMargin = 72,
   filename = "qrcode",
+  profileName,
   dotStyle,
   outerCornerStyle,
   innerCornerStyle,
@@ -1194,11 +1198,15 @@ export function QRPreview({
                   fgColor={fgColor}
                   visible={!qrReady && !artisticPreview}
                   matrix={matrix}
+                  label={`QR code voor profiel ${profileName || richValues?.name || richValues?.handle || filename}`}
                 />
               )}
               {qrError && <QRErrorState onRetry={retryRender} />}
               <div
                 ref={qrRef}
+                role="img"
+                aria-label={`QR code voor profiel ${profileName || richValues?.name || richValues?.handle || filename}`}
+                aria-hidden={!qrReady || qrError || Boolean(artisticPreview)}
                 className={cn(
                   "absolute inset-0 flex items-center justify-center transition-opacity duration-[250ms] ease-in-out [&_canvas]:!w-full [&_canvas]:!h-full [&_svg]:!w-full [&_svg]:!h-full",
                   qrReady && !qrError && !artisticPreview ? "opacity-100" : "opacity-0",
@@ -1207,6 +1215,8 @@ export function QRPreview({
               {artisticPreview && !qrError && (
                 <div
                   className="absolute inset-0 [&_svg]:!w-full [&_svg]:!h-full"
+                  role="img"
+                  aria-label={`QR code voor profiel ${profileName || richValues?.name || richValues?.handle || filename}`}
                   dangerouslySetInnerHTML={{ __html: artisticPreview }}
                 />
               )}
@@ -1226,11 +1236,15 @@ export function QRPreview({
                 fgColor={fgColor}
                 visible={!qrReady && !artisticPreview}
                 matrix={matrix}
+                label={`QR code voor profiel ${profileName || richValues?.name || richValues?.handle || filename}`}
               />
             )}
             {qrError && <QRErrorState onRetry={retryRender} />}
             <div
               ref={qrRef}
+              role="img"
+              aria-label={`QR code voor profiel ${profileName || richValues?.name || richValues?.handle || filename}`}
+              aria-hidden={!qrReady || qrError || Boolean(artisticPreview)}
               className={cn(
                 "absolute inset-0 flex items-center justify-center transition-opacity duration-[250ms] ease-in-out [&_canvas]:!w-full [&_canvas]:!h-full [&_svg]:!w-full [&_svg]:!h-full",
                 qrReady && !qrError && !artisticPreview ? "opacity-100" : "opacity-0",
@@ -1239,6 +1253,8 @@ export function QRPreview({
             {artisticPreview && !qrError && (
               <div
                 className="absolute inset-0 [&_svg]:!w-full [&_svg]:!h-full"
+                role="img"
+                aria-label={`QR code voor profiel ${profileName || richValues?.name || richValues?.handle || filename}`}
                 dangerouslySetInnerHTML={{ __html: artisticPreview }}
               />
             )}
@@ -1389,6 +1405,7 @@ export function QRPreview({
             variant="outline"
             onClick={copyToClipboard}
             data-testid="copy-qr"
+            aria-label={copied ? "QR code gekopieerd" : "QR code kopiëren"}
             disabled={!hasContent}
             title="Copy the QR image to your clipboard"
             className={cn(

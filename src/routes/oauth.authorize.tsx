@@ -444,8 +444,9 @@ function AuthorizePage() {
           <fieldset className="mt-4 space-y-2 rounded-2xl border border-border p-3 text-sm">
             <legend className="px-1 text-xs font-medium text-muted-foreground">{t("auth.consent.emailPick")}</legend>
             {prompt.emailOptions!.map((o) => (
-              <label key={o.id} className="flex cursor-pointer items-start gap-3">
+              <label key={o.id} htmlFor={`consent-email-${o.id}`} className="flex min-h-11 cursor-pointer items-start gap-3">
                 <input
+                  id={`consent-email-${o.id}`}
                   type="radio"
                   name="email-choice"
                   className="mt-1 accent-primary"
@@ -461,8 +462,9 @@ function AuthorizePage() {
           </fieldset>
         )}
         {prompt.richIdentity && (
-          <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-border p-3 text-sm">
+          <label htmlFor="consent-rich-identity" className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-border p-3 text-sm">
             <Checkbox
+              id="consent-rich-identity"
               checked={richOptIn}
               onCheckedChange={(v) => setRichOptIn(v === true)}
               aria-label={t("auth.consent.share")}

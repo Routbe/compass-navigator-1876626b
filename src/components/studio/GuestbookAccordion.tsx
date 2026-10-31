@@ -30,11 +30,12 @@ export function GuestbookAccordion({ enabled, onEnabledChange }: { enabled: bool
           <span className="block text-sm font-medium">{t("studio.guestbook.title")}</span>
           <span className="block text-xs text-muted-foreground">{t("studio.guestbook.counts", { total: notes.length, pinned: pinnedCount, limit: GUESTBOOK_PIN_LIMIT })}</span>
         </span>
-        <span onClick={(e) => e.stopPropagation()}>
-          <Switch checked={enabled} onCheckedChange={onEnabledChange} aria-label={t("studio.guestbook.onProfile")} />
-        </span>
       </summary>
       <div className="space-y-2 py-3">
+        <div className="flex min-h-11 items-center justify-between gap-3">
+          <span className="text-sm">{t("studio.guestbook.onProfile")}</span>
+          <Switch checked={enabled} onCheckedChange={onEnabledChange} aria-label={t("studio.guestbook.onProfile")} />
+        </div>
         {notes.length === 0 && <p className="text-xs text-muted-foreground">{t("studio.guestbook.empty")}</p>}
         {notes.map((n) => (
           <div key={n.id} className={`flex items-start gap-2 rounded-xl border p-3 ${n.pinned ? "border-primary/50 bg-primary/5" : "border-border"}`}>

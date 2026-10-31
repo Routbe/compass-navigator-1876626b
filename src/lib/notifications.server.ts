@@ -81,6 +81,7 @@ async function resolveRecipient(userId: string): Promise<Recipient> {
  * src/emails/template-ids.ts); `html` stays as the inline last-resort body.
  */
 export async function sendTransactionalEmail(opts: {
+  notificationUserId?: string;
   to: string;
   subject: string;
   html: string;
@@ -93,6 +94,7 @@ export async function sendTransactionalEmail(opts: {
 }): Promise<boolean> {
   const { sendMail } = await import("@/emails/send.server");
   const result = await sendMail({
+    ...(opts.notificationUserId ? { notificationUserId: opts.notificationUserId } : {}),
     to: opts.to,
     subject: opts.subject,
     html: opts.html,
@@ -179,6 +181,7 @@ export async function notifyUser(
 
     if (email) {
       await sendTransactionalEmail({
+        notificationUserId: userId,
         to: email,
         subject: copy.subject,
         html: renderNotificationEmail(copy, dashboardUrl, locale),

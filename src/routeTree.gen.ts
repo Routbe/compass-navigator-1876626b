@@ -146,6 +146,7 @@ import { Route as AuthenticatedConsoleAppsAppIdRouteImport } from './routes/_aut
 import { Route as AuthenticatedConsoleAppsNewRouteImport } from './routes/_authenticated/console.apps.new'
 import { Route as AuthenticatedStudioPersonalFeatureRouteImport } from './routes/_authenticated/studio_.personal.$feature'
 import { Route as AuthenticatedStudioWorkspacesNewRouteImport } from './routes/_authenticated/studio_.workspaces.new'
+import { Route as ApiPublicEmailUnsubscribeRouteImport } from './routes/api.public.email.unsubscribe'
 import { Route as ApiPublicAuthProvidersRouteImport } from './routes/api_.public.auth.providers'
 import { Route as ApiPublicBadgeHandleRouteImport } from './routes/api_.public.badge.$handle'
 import { Route as ApiPublicBlueskyCallbackRouteImport } from './routes/api_.public.bluesky.callback'
@@ -918,6 +919,12 @@ const AuthenticatedStudioWorkspacesNewRoute =
     path: '/studio/workspaces/new',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPublicEmailUnsubscribeRoute =
+  ApiPublicEmailUnsubscribeRouteImport.update({
+    id: '/public/email/unsubscribe',
+    path: '/public/email/unsubscribe',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicAuthProvidersRoute = ApiPublicAuthProvidersRouteImport.update({
   id: '/api_/public/auth/providers',
   path: '/api/public/auth/providers',
@@ -1395,6 +1402,7 @@ export interface FileRoutesByFullPath {
   '/console/apps/new': typeof AuthenticatedConsoleAppsNewRoute
   '/studio/personal/$feature': typeof AuthenticatedStudioPersonalFeatureRoute
   '/studio/workspaces/new': typeof AuthenticatedStudioWorkspacesNewRoute
+  '/api/public/email/unsubscribe': typeof ApiPublicEmailUnsubscribeRoute
   '/api/public/auth/providers': typeof ApiPublicAuthProvidersRoute
   '/api/public/badge/$handle': typeof ApiPublicBadgeHandleRoute
   '/api/public/bluesky/callback': typeof ApiPublicBlueskyCallbackRoute
@@ -1588,6 +1596,7 @@ export interface FileRoutesByTo {
   '/console/apps/new': typeof AuthenticatedConsoleAppsNewRoute
   '/studio/personal/$feature': typeof AuthenticatedStudioPersonalFeatureRoute
   '/studio/workspaces/new': typeof AuthenticatedStudioWorkspacesNewRoute
+  '/api/public/email/unsubscribe': typeof ApiPublicEmailUnsubscribeRoute
   '/api/public/auth/providers': typeof ApiPublicAuthProvidersRoute
   '/api/public/badge/$handle': typeof ApiPublicBadgeHandleRoute
   '/api/public/bluesky/callback': typeof ApiPublicBlueskyCallbackRoute
@@ -1788,6 +1797,7 @@ export interface FileRoutesById {
   '/_authenticated/console/apps/new': typeof AuthenticatedConsoleAppsNewRoute
   '/_authenticated/studio_/personal/$feature': typeof AuthenticatedStudioPersonalFeatureRoute
   '/_authenticated/studio_/workspaces/new': typeof AuthenticatedStudioWorkspacesNewRoute
+  '/api/public/email/unsubscribe': typeof ApiPublicEmailUnsubscribeRoute
   '/api_/public/auth/providers': typeof ApiPublicAuthProvidersRoute
   '/api_/public/badge/$handle': typeof ApiPublicBadgeHandleRoute
   '/api_/public/bluesky/callback': typeof ApiPublicBlueskyCallbackRoute
@@ -1988,6 +1998,7 @@ export interface FileRouteTypes {
     | '/console/apps/new'
     | '/studio/personal/$feature'
     | '/studio/workspaces/new'
+    | '/api/public/email/unsubscribe'
     | '/api/public/auth/providers'
     | '/api/public/badge/$handle'
     | '/api/public/bluesky/callback'
@@ -2181,6 +2192,7 @@ export interface FileRouteTypes {
     | '/console/apps/new'
     | '/studio/personal/$feature'
     | '/studio/workspaces/new'
+    | '/api/public/email/unsubscribe'
     | '/api/public/auth/providers'
     | '/api/public/badge/$handle'
     | '/api/public/bluesky/callback'
@@ -2380,6 +2392,7 @@ export interface FileRouteTypes {
     | '/_authenticated/console/apps/new'
     | '/_authenticated/studio_/personal/$feature'
     | '/_authenticated/studio_/workspaces/new'
+    | '/api/public/email/unsubscribe'
     | '/api_/public/auth/providers'
     | '/api_/public/badge/$handle'
     | '/api_/public/bluesky/callback'
@@ -3546,6 +3559,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioWorkspacesNewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/email/unsubscribe': {
+      id: '/api/public/email/unsubscribe'
+      path: '/public/email/unsubscribe'
+      fullPath: '/api/public/email/unsubscribe'
+      preLoaderRoute: typeof ApiPublicEmailUnsubscribeRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api_/public/auth/providers': {
       id: '/api_/public/auth/providers'
       path: '/api/public/auth/providers'
@@ -4159,11 +4179,13 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface ApiRouteChildren {
   ApiClaimRootRoute: typeof ApiClaimRootRoute
   ApiBookingsIdRoute: typeof ApiBookingsIdRoute
+  ApiPublicEmailUnsubscribeRoute: typeof ApiPublicEmailUnsubscribeRoute
 }
 
 const ApiRouteChildren: ApiRouteChildren = {
   ApiClaimRootRoute: ApiClaimRootRoute,
   ApiBookingsIdRoute: ApiBookingsIdRoute,
+  ApiPublicEmailUnsubscribeRoute: ApiPublicEmailUnsubscribeRoute,
 }
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)

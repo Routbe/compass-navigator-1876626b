@@ -51,6 +51,7 @@ export function transactionalTags(category?: string, extra?: string[]): string[]
 const BREVO_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 
 export interface MailOptions {
+  notificationUserId?: string;
   to: string;
   subject?: string;
   html?: string;
@@ -283,6 +284,17 @@ interface Attempt {
  * Every failing step logs the exact Brevo status/body and alerts the admin.
  */
 export async function sendMail(opts: MailOptions): Promise<{ sent: boolean; error?: string }> {
+  let listHeaders: Record<string, string> = {};
+  if (opts.notificationUserId) {
+    try {
+      const { notificationMailPolicy } = await import("@/lib/email/unsubscribe.server");
+      const policy = await notificationMailPolicy(opts.notificationUserId, opts.category, opts.tags);
+      if (!policy.allowed) return { sent: false, error: "Notification email disabled by recipient." };
+      listHeaders = policy.headers;
+    } catch {
+      return { sent: false, error: "Notification preference check unavailable." };
+    }
+  }
   const { key, error: keyError } = brevoKeyStatus();
   const correlationId = opts.correlationId ?? newCorrelationId();
   if (!key) {
@@ -300,7 +312,7 @@ export async function sendMail(opts: MailOptions): Promise<{ sent: boolean; erro
     ...(opts.subject ? { subject: opts.subject } : {}),
     ...(opts.params ? { params: opts.params } : {}),
     replyTo: opts.replyTo ?? defaultReplyTo(),
-    headers: TRACKING_OFF_HEADERS,
+    headers: { ...TRACKING_OFF_HEADERS, ...listHeaders },
     tags: transactionalTags(opts.category, opts.tags),
     ...(opts.attachments?.length
       ? {
