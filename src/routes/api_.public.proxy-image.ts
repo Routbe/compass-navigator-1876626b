@@ -20,28 +20,13 @@ export const Route = createFileRoute("/api_/public/proxy-image")({
         const target = isAllowedProxyUrl(new URL(request.url).searchParams.get("url") ?? "", storageHosts);
         if (!target) return new Response("Not allowed", { status: 400 });
         try {
-          const res = await fetch(target.toString(), {
-            redirect: "error",
-            headers: { accept: "image/*", "user-agent": "rout.be image proxy" },
-            signal: AbortSignal.timeout(8000),
-          });
-          const type = res.headers.get("content-type") ?? "";
-          if (!res.ok || !/^image\/(png|jpeg|webp|gif|avif)/.test(type)) return new Response("Bad upstream", { status: 502 });
-          const len = Number(res.headers.get("content-length") ?? 0);
-          if (len > MAX_BYTES) return new Response("Too large", { status: 413 });
-          const buf = await res.arrayBuffer();
-          if (buf.byteLength > MAX_BYTES) return new Response("Too large", { status: 413 });
-          return new Response(buf, {
-            headers: {
-              "content-type": type,
-              "cache-control": "public, max-age=86400, s-maxage=86400, immutable",
-              "x-content-type-options": "nosniff",
-              "content-security-policy": "default-src 'none'",
-              "referrer-policy": "no-referrer",
-            },
-          });
-        } catch {
-          return new Response("Upstream failed", { status: 502 });
+          const { validateOutboundUrl } = await import("@/lib/security/ssrf-guard.server");
+          await validateOutboundUrl(target.toString(), AbortSignal.timeout(3000));
+          const { cachedRemoteImage } = await import("@/lib/integrations/mastodon.server");
+          return await cachedRemoteImage(target.toString());
+        } catch (error) {
+          const status = (error as { status?: number }).status;
+          return new Response("Image request refused", { status: status === 400 || status === 413 || status === 415 ? status : 502 });
         }
       },
     },

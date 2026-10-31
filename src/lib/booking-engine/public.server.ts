@@ -3,6 +3,7 @@ import { sql } from "@/lib/neon";
 import { bookableStarts } from "./bitmap";
 import type { EventTypeRules } from "./types";
 import { intakeFields } from "./intake";
+import { validBookingToken } from "./access";
 
 export async function publicEventType(id: string) {
   const rows = (await sql`select t.id, t.title, t.description, t.duration_minutes, t.price_cents, t.currency, t.location_kind,
@@ -82,12 +83,7 @@ export async function bookingSummary(id: string, token?: string | null) {
   };
   const storedToken = r["booking_token"] ? String(r["booking_token"]) : null;
   // Constant-time vergelijking zonder node:crypto (workerd-compatibel).
-  let tokenOk = false;
-  if (token && storedToken && token.length === storedToken.length) {
-    let diff = 0;
-    for (let i = 0; i < token.length; i++) diff |= token.charCodeAt(i) ^ storedToken.charCodeAt(i);
-    tokenOk = diff === 0;
-  }
+  const tokenOk = validBookingToken(token, storedToken);
   if (!tokenOk) {
     // Gemaskerde publieke status-check: geen gast-PII, geen locatie.
     return { ...base, guestName: null, guestTimezone: null, locationValue: null, masked: true as const };

@@ -1,4 +1,9 @@
 # Repository import
+- [ ] Harden Mastodon image requests (DNS, HTTPS, 3-second deadline, 5 MB images and persistent cache).
+- [ ] Enforce booking guest tokens and workspace host authorization without anonymous PII.
+- [ ] Harden go, short-link and OAuth/custom redirect targets with tested trust rules.
+- [ ] Add QR destination/campaign AI label and CTA suggestions and verify a real gateway request.
+- [ ] Run scan-fix tests and the full regression suite; inspect preview diagnostics.
 - [x] Import ROUT source, public assets, tests, schema references, and license without repository metadata.
 - [x] Preserve destination framework configuration and move legacy page components into components/imported-pages.
 - [x] Verify public QR generation, PNG download, frame controls, footer scrolling, and phone menu/layout.

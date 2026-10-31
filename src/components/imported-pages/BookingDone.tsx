@@ -43,9 +43,9 @@ export default function BookingDone({ bookingId, paid, token }: { bookingId: str
               {b.locationValue && <p className="break-all text-sm">{b.locationValue}</p>}
               {b.status === "requested" && <p className="text-sm text-muted-foreground">{t("booking.done.requestedBody")}</p>}
               {b.status === "pending_payment" && paid && <Loader2 className="mx-auto h-5 w-5 animate-spin text-muted-foreground" />}
-              {b.status === "confirmed" && (
+              {b.status === "confirmed" && !b.masked && token && (
                 <Button asChild>
-                  <a href={`/api/public/booking-ics/${b.id}`} download><Download className="h-4 w-4" />{t("booking.done.ics")}</a>
+                  <a href={`/api/public/booking-ics/${b.id}?token=${encodeURIComponent(token)}`} download><Download className="h-4 w-4" />{t("booking.done.ics")}</a>
                 </Button>
               )}
             </>

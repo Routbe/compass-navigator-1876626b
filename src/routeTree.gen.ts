@@ -27,6 +27,7 @@ import { Route as GiftRouteImport } from './routes/gift'
 import { Route as GoRouteImport } from './routes/go'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as IbanQrRouteImport } from './routes/iban-qr'
+import { Route as LeavingRouteImport } from './routes/leaving'
 import { Route as ManifestoRouteImport } from './routes/manifesto'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PressRouteImport } from './routes/press'
@@ -112,6 +113,7 @@ import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardRoutesRouteImport } from './routes/_authenticated/dashboard.routes'
 import { Route as AuthenticatedStudioAccountRouteImport } from './routes/_authenticated/studio_.account'
 import { Route as AuthenticatedStudioBookingRouteImport } from './routes/_authenticated/studio_.booking'
+import { Route as ApiBookingsIdRouteImport } from './routes/api.bookings.$id'
 import { Route as ApiAdminMailCheckRouteImport } from './routes/api_.admin.mail-check'
 import { Route as ApiAuthSplatRouteImport } from './routes/api_.auth.$'
 import { Route as ApiBunqCheckStatusRouteImport } from './routes/api_.bunq.check-status'
@@ -292,6 +294,11 @@ const HubRoute = HubRouteImport.update({
 const IbanQrRoute = IbanQrRouteImport.update({
   id: '/iban-qr',
   path: '/iban-qr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeavingRoute = LeavingRouteImport.update({
+  id: '/leaving',
+  path: '/leaving',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManifestoRoute = ManifestoRouteImport.update({
@@ -741,6 +748,11 @@ const AuthenticatedStudioBookingRoute =
     path: '/studio/booking',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiBookingsIdRoute = ApiBookingsIdRouteImport.update({
+  id: '/bookings/$id',
+  path: '/bookings/$id',
+  getParentRoute: () => ApiRoute,
+} as any)
 const ApiAdminMailCheckRoute = ApiAdminMailCheckRouteImport.update({
   id: '/api_/admin/mail-check',
   path: '/api/admin/mail-check',
@@ -1265,6 +1277,7 @@ export interface FileRoutesByFullPath {
   '/go': typeof GoRoute
   '/hub': typeof HubRoute
   '/iban-qr': typeof IbanQrRoute
+  '/leaving': typeof LeavingRoute
   '/manifesto': typeof ManifestoRoute
   '/onboarding': typeof OnboardingRoute
   '/press': typeof PressRoute
@@ -1348,6 +1361,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/routes': typeof AuthenticatedDashboardRoutesRoute
   '/studio/account': typeof AuthenticatedStudioAccountRoute
   '/studio/booking': typeof AuthenticatedStudioBookingRoute
+  '/api/bookings/$id': typeof ApiBookingsIdRoute
   '/api/admin/mail-check': typeof ApiAdminMailCheckRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/bunq/check-status': typeof ApiBunqCheckStatusRoute
@@ -1460,6 +1474,7 @@ export interface FileRoutesByTo {
   '/go': typeof GoRoute
   '/hub': typeof HubRoute
   '/iban-qr': typeof IbanQrRoute
+  '/leaving': typeof LeavingRoute
   '/manifesto': typeof ManifestoRoute
   '/onboarding': typeof OnboardingRoute
   '/press': typeof PressRoute
@@ -1540,6 +1555,7 @@ export interface FileRoutesByTo {
   '/dashboard/routes': typeof AuthenticatedDashboardRoutesRoute
   '/studio/account': typeof AuthenticatedStudioAccountRoute
   '/studio/booking': typeof AuthenticatedStudioBookingRoute
+  '/api/bookings/$id': typeof ApiBookingsIdRoute
   '/api/admin/mail-check': typeof ApiAdminMailCheckRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/bunq/check-status': typeof ApiBunqCheckStatusRoute
@@ -1654,6 +1670,7 @@ export interface FileRoutesById {
   '/go': typeof GoRoute
   '/hub': typeof HubRoute
   '/iban-qr': typeof IbanQrRoute
+  '/leaving': typeof LeavingRoute
   '/manifesto': typeof ManifestoRoute
   '/onboarding': typeof OnboardingRoute
   '/press': typeof PressRoute
@@ -1737,6 +1754,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/routes': typeof AuthenticatedDashboardRoutesRoute
   '/_authenticated/studio_/account': typeof AuthenticatedStudioAccountRoute
   '/_authenticated/studio_/booking': typeof AuthenticatedStudioBookingRoute
+  '/api/bookings/$id': typeof ApiBookingsIdRoute
   '/api_/admin/mail-check': typeof ApiAdminMailCheckRoute
   '/api_/auth/$': typeof ApiAuthSplatRoute
   '/api_/bunq/check-status': typeof ApiBunqCheckStatusRoute
@@ -1852,6 +1870,7 @@ export interface FileRouteTypes {
     | '/go'
     | '/hub'
     | '/iban-qr'
+    | '/leaving'
     | '/manifesto'
     | '/onboarding'
     | '/press'
@@ -1935,6 +1954,7 @@ export interface FileRouteTypes {
     | '/dashboard/routes'
     | '/studio/account'
     | '/studio/booking'
+    | '/api/bookings/$id'
     | '/api/admin/mail-check'
     | '/api/auth/$'
     | '/api/bunq/check-status'
@@ -2047,6 +2067,7 @@ export interface FileRouteTypes {
     | '/go'
     | '/hub'
     | '/iban-qr'
+    | '/leaving'
     | '/manifesto'
     | '/onboarding'
     | '/press'
@@ -2127,6 +2148,7 @@ export interface FileRouteTypes {
     | '/dashboard/routes'
     | '/studio/account'
     | '/studio/booking'
+    | '/api/bookings/$id'
     | '/api/admin/mail-check'
     | '/api/auth/$'
     | '/api/bunq/check-status'
@@ -2240,6 +2262,7 @@ export interface FileRouteTypes {
     | '/go'
     | '/hub'
     | '/iban-qr'
+    | '/leaving'
     | '/manifesto'
     | '/onboarding'
     | '/press'
@@ -2323,6 +2346,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/routes'
     | '/_authenticated/studio_/account'
     | '/_authenticated/studio_/booking'
+    | '/api/bookings/$id'
     | '/api_/admin/mail-check'
     | '/api_/auth/$'
     | '/api_/bunq/check-status'
@@ -2438,6 +2462,7 @@ export interface RootRouteChildren {
   GoRoute: typeof GoRoute
   HubRoute: typeof HubRoute
   IbanQrRoute: typeof IbanQrRoute
+  LeavingRoute: typeof LeavingRoute
   ManifestoRoute: typeof ManifestoRoute
   OnboardingRoute: typeof OnboardingRoute
   PressRoute: typeof PressRoute
@@ -2686,6 +2711,13 @@ declare module '@tanstack/react-router' {
       path: '/iban-qr'
       fullPath: '/iban-qr'
       preLoaderRoute: typeof IbanQrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaving': {
+      id: '/leaving'
+      path: '/leaving'
+      fullPath: '/leaving'
+      preLoaderRoute: typeof LeavingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manifesto': {
@@ -3282,6 +3314,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/studio/booking'
       preLoaderRoute: typeof AuthenticatedStudioBookingRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/bookings/$id': {
+      id: '/api/bookings/$id'
+      path: '/bookings/$id'
+      fullPath: '/api/bookings/$id'
+      preLoaderRoute: typeof ApiBookingsIdRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api_/admin/mail-check': {
       id: '/api_/admin/mail-check'
@@ -4119,10 +4158,12 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface ApiRouteChildren {
   ApiClaimRootRoute: typeof ApiClaimRootRoute
+  ApiBookingsIdRoute: typeof ApiBookingsIdRoute
 }
 
 const ApiRouteChildren: ApiRouteChildren = {
   ApiClaimRootRoute: ApiClaimRootRoute,
+  ApiBookingsIdRoute: ApiBookingsIdRoute,
 }
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
@@ -4160,6 +4201,7 @@ const rootRouteChildren: RootRouteChildren = {
   GoRoute: GoRoute,
   HubRoute: HubRoute,
   IbanQrRoute: IbanQrRoute,
+  LeavingRoute: LeavingRoute,
   ManifestoRoute: ManifestoRoute,
   OnboardingRoute: OnboardingRoute,
   PressRoute: PressRoute,
