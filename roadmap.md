@@ -1,6 +1,8 @@
 # Repository import
-- [ ] Add asymmetric ledger with client-only private-key wrapping/recovery and account-safe reset, verified disclosure chain, strict passkey step-up, email safety lock/freeze and honest hybrid JWKS metadata; run security/full regressions.
-- [ ] Review blind-token protocol and client-only key recovery boundaries before claiming unlinkability or zero-knowledge guarantees.
+- [x] Implement asymmetric ledger with local envelopes/recovery and account-safe key reset, disclosure chain/Merkle root, verified-UV passkey guard and honest hybrid JWKS metadata; 1254 tests and typecheck exit 0.
+- [x] Preserve compatible OIDC without blind-token claims; document live-event visibility and unanchored-root limitations.
+- [ ] Apply new Neon migrations 0145–0147 sequentially — blocked by explicit migration approval; 0140–0144 remain immutable.
+- [ ] Activate and verify staged email change, 48-hour freeze, signed-in ledger/PRF and recovery — blocked by reviewed emergency unfreeze/recovery path, disposable authorized ROUT account/passkey and mail configuration.
 - [x] Audit trackers/data minimization; remove external fonts/logo CDN and persistent referral tracking; no banner.
 - [x] Improve shared keyboard focus, QR names, contrast, consent labels and upload/menu keyboard interaction; public light/dark axe passes.
 - [x] Implement hard credential/non-FK purge and signed optional-mail unsubscribe; isolated deletion/token tests and live EXPLAIN checks pass.

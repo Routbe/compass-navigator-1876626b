@@ -22,3 +22,9 @@
 
 ## Deployment
 Review and approve each new Neon migration in full before applying sequentially. Do not activate the primary-email workflow until the emergency recovery/unfreeze path is reviewed and tested with a disposable account. No claim of production-ready end-to-end verification is made.
+
+## Verification results
+- Full Vitest suite: 209 files, 1,254 tests passed.
+- Manual `bunx tsgo --noEmit`: exit 0 after the automatic checker timed out.
+- Migration replay on PGlite: passes; schema snapshot/types regenerated only from immutable migration replay.
+- Browser: freeze and confirmation pages render without page errors; absent tokens disable actions; Studio correctly redirects signed-out users to sign-in. Authenticated flows remain unverified.
