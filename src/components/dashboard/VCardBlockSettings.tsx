@@ -100,6 +100,7 @@ export function VCardBlockSettings({
           <p className="rounded-xl border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">Je bio wordt als notitie meegestuurd.</p>
         ) : (
           <textarea
+            aria-label="Notitie in het adresboek"
             className="min-h-16 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
             maxLength={300}
             placeholder="bv. Ontmoet via mijn ROUT-profiel"

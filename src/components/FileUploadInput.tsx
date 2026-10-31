@@ -262,16 +262,6 @@ export function FileUploadInput({ type, value, onValueChange }: FileUploadInputP
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          <input
-            ref={inputRef}
-            type="file"
-            aria-label={config.label}
-            accept={config.accept}
-            onChange={handleFileChange}
-            className="hidden"
-            disabled={isUploading}
-          />
-
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center ${
               isDragOver ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"
@@ -289,6 +279,8 @@ export function FileUploadInput({ type, value, onValueChange }: FileUploadInputP
           </div>
         </Button>
       )}
+
+      <input ref={inputRef} type="file" aria-label={config.label} accept={config.accept} onChange={handleFileChange} className="hidden" disabled={isUploading} />
 
       <p className="text-sm text-muted-foreground">
         Upload a file and we'll generate a QR code linking to it

@@ -120,7 +120,7 @@ export function SnapchatPanel() {
               ))}
             </div>
             <div className="flex gap-2">
-              <Input value={text} maxLength={60} onChange={(e) => setText(e.target.value)} placeholder="Bijv. Onderweg" />
+              <Input aria-label="Snapchat-status" value={text} maxLength={60} onChange={(e) => setText(e.target.value)} placeholder="Bijv. Onderweg" />
               <Button size="sm" onClick={async () => { await save({ moodEmoji: emoji, moodText: text }); toast.success("Status opgeslagen"); }}>
                 Opslaan
               </Button>

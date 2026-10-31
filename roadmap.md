@@ -1,13 +1,15 @@
 # Repository import
-- [ ] Audit tracker/cookie architecture and necessary data collection without adding a cookie banner.
-- [ ] Improve shared keyboard focus, QR names, contrast and consent/Studio accessibility; run automated audit.
-- [ ] Verify irreversible account deletion of credentials/tokens/email assignments and email unsubscribe transport.
-- [ ] Audit remote stock assets and run full compliance regression suite.
+- [x] Audit trackers/data minimization; remove external fonts/logo CDN and persistent referral tracking; no banner.
+- [x] Improve shared keyboard focus, QR names, contrast, consent labels and upload/menu keyboard interaction; public light/dark axe passes.
+- [x] Implement hard credential/non-FK purge and signed optional-mail unsubscribe; isolated deletion/token tests and live EXPLAIN checks pass.
+- [x] Audit stock references and run compliance regressions: 1236 tests and manual typecheck pass.
+- [ ] Complete remaining accessibility review and signed-in Studio/consent checks — blocked by a real ROUT session and registered client context; findings in docs/architecture-accessibility-audit.md.
+- [ ] Verify live deletion/valid unsubscribe and provider delivery; review object/backup/audit retention — blocked by disposable authorized ROUT account, original storage/mail service configuration and retention decision.
 - [ ] Harden Mastodon image requests (DNS, HTTPS, 3-second deadline, 5 MB images and persistent cache).
-- [ ] Enforce booking guest tokens and workspace host authorization without anonymous PII.
-- [ ] Harden go, short-link and OAuth/custom redirect targets with tested trust rules.
+- [x] Enforce booking guest tokens and workspace host authorization without anonymous PII.
+- [x] Harden go, short-link and OAuth/custom redirect targets with tested trust rules.
 - [ ] Add QR destination/campaign AI label and CTA suggestions and verify a real gateway request.
-- [ ] Run scan-fix tests and the full regression suite; inspect preview diagnostics.
+- [x] Run scan-fix tests and the full regression suite; inspect preview diagnostics.
 - [x] Import ROUT source, public assets, tests, schema references, and license without repository metadata.
 - [x] Preserve destination framework configuration and move legacy page components into components/imported-pages.
 - [x] Verify public QR generation, PNG download, frame controls, footer scrolling, and phone menu/layout.
