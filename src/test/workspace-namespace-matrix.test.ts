@@ -98,7 +98,7 @@ describe("menu labels per context", () => {
     expect(GLOBAL_ACCOUNT_LINK.label).toBe("Account & Beveiliging");
   });
   it("account and workspace settings never contain profile design or content tabs", () => {
-    for (const f of ["src/pages/AccountSettings.tsx", "src/routes/_authenticated/studio_.w.$workspaceSlug.settings.tsx"]) {
+    for (const f of ["src/components/imported-pages/AccountSettings.tsx", "src/routes/_authenticated/studio_.w.$workspaceSlug.settings.tsx"]) {
       const src = readFileSync(join(ROOT, f), "utf8");
       for (const p of ["Vormgeving", "Inhoud", "DesignTemplatesPanel", "ProfileThemePicker"]) expect(src).not.toContain(p);
     }
